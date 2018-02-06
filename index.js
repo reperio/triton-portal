@@ -5,7 +5,7 @@ const Config = require('./config');
 
 const start = async function () {
     try {
-        const reperio_server = new ReperioServer({authEnabled: true, authSecret: Config.jsonSecret});
+        const reperio_server = new ReperioServer({authEnabled: false, authSecret: Config.jsonSecret});
 
         await reperio_server.registerAdditionalPlugin(require('inert'));
         await reperio_server.registerAdditionalPlugin(require('vision'));

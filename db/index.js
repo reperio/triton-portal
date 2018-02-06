@@ -16,11 +16,10 @@ class UnitOfWork {
 
         this._cachedRepositories = {};
 
-        for (const [repositoryName, Repository] of Object.entries(repositories)) {
+        for (const [repositoryName, repository] of Object.entries(repositories)) {
             Object.defineProperty(this, repositoryName, {
                 get: () => {
-                    this._cachedRepositories[repositoryName] = this._cachedRepositories[repositoryName] || new Repository(this);
-                    return this._cachedRepositories[repositoryName];
+                    return this._cachedRepositories[repositoryName] = this._cachedRepositories[repositoryName] || new repository(this);
                 }
             });
         }
