@@ -21,7 +21,7 @@ const config = {
             directory: __dirname + '/migrations'
         },
         seeds: {
-            directory: __dirname + '/seeds/test'
+            directory: __dirname + '/seeds/dev'
         }
     },
     test: {

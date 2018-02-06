@@ -18,6 +18,11 @@
   },
   "homepage": "https://github.com/reperio/triton-portal#readme",
   "dependencies": {
-    "hapijs-starter": "^2.0.0"
+    "bcryptjs": "^2.4.3",
+    "hapijs-starter": "^2.0.0",
+    "knex": "^0.14.2",
+    "moment": "^2.20.1",
+    "mysql": "^2.15.0",
+    "uuid": "^3.2.1"
   }
 }
