@@ -19,12 +19,15 @@
   "homepage": "https://github.com/reperio/triton-portal#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "hapi-swagger": "^9.0.2",
     "hapijs-starter": "^2.0.0",
+    "inert": "^5.1.0",
     "knex": "^0.14.2",
     "moment": "^2.20.1",
     "mysql": "^2.15.0",
     "objection": "^0.9.4",
-    "uuid": "^3.2.1"
+    "uuid": "^3.2.1",
+    "vision": "^5.3.1"
   },
   "devDependencies": {
     "jest": "^22.1.4"
