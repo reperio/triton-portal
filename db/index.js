@@ -9,7 +9,7 @@ class UnitOfWork {
         this._Model = Model;
         this._models = models;
         this._transaction = null;
-
+        
         knex.on('query', (query) => logger.debug(query.sql));
 
         this._logger = logger;

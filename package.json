@@ -23,6 +23,10 @@
     "knex": "^0.14.2",
     "moment": "^2.20.1",
     "mysql": "^2.15.0",
+    "objection": "^0.9.4",
     "uuid": "^3.2.1"
+  },
+  "devDependencies": {
+    "jest": "^22.1.4"
   }
 }
