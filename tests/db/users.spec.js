@@ -79,7 +79,7 @@ describe('User Tests', () => {
     it('Can get user by id', async () => {
         const user = await uow.usersRepository.getUserByUsername('test');
         const result = await uow.usersRepository.getUserById(user.id);
-        expect(result).not.toBe(null);
+        expect(result.username).toBe('test');
     });
 
     it('Can update user', async () => {

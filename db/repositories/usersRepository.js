@@ -20,7 +20,7 @@ class UsersRepository {
 
         const q = this.uow._models.User
             .query(this.uow._transaction)
-            .findById(id);
+            .where('id', id);
 
         const users = await q;
         if (users.length > 1) {
