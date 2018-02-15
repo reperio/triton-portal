@@ -43,7 +43,8 @@ const start = async function () {
             }
         });
 
-        reperio_server.app.config = Config;
+        const config = new Config();
+        reperio_server.app.config = config;
 
         await reperio_server.startServer();
     } catch (err) {
