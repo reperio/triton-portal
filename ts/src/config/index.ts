@@ -2,7 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { EWOULDBLOCK } from 'constants';
 
-export class Config {
+export default class Config {
     constructor() {
         const configName = process.env.NODE_ENV || 'development';
         const defaultConfig = require(`./${configName}`);
@@ -13,7 +13,6 @@ export class Config {
         } catch (err) {
             return backupConfig;
         }
-
         return defaultConfig;
     }
 

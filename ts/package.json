@@ -20,6 +20,7 @@
   },
   "homepage": "https://github.com/reperio/triton-portal#readme",
   "dependencies": {
+    "@types/knex": "^0.14.7",
     "bcryptjs": "^2.4.3",
     "hapi-swagger": "^9.0.2",
     "hapijs-starter": "^2.0.0",
@@ -34,6 +35,7 @@
   },
   "devDependencies": {
     "@types/node": "^9.4.6",
+    "@types/winston": "^2.3.8",
     "jest": "^22.1.4",
     "typescript": "^2.7.2"
   }
