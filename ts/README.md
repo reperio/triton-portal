@@ -3,7 +3,7 @@
 ## Project Setup
 
 ### Global NPM Packages
-`npm install -g jest knex`
+`npm install -g jest knex typescript`
 
 ### Database Configuration
 Install mysql community server and enter the mysql prompt  
