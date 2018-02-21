@@ -20,9 +20,10 @@ export class UnitOfWork {
         this._logger.info(`Loading ${env} database`);
         const dbConfig: any = KnexConfig;
         this._knex = Knex(dbConfig[env]);
+        Model.knex(this._knex);
 
         // automatic debug logging for queries
-        this._knex.on('query', (query: Knex.QueryBuilder) => this._logger.debug(query.toSQL().sql));
+        this._knex.on('query', (query: any) => this._logger.debug(query.sql));
 
         // automatic logging and rollback of transactions when queries throw errors
         this._knex.on('query-error', (err: Error) => {
