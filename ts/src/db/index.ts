@@ -1,13 +1,17 @@
 import * as Knex from 'knex';
 import {Model} from 'objection';
-import Winston, {LoggerInstance} from 'winston';
+import {LoggerInstance} from 'winston';
 
-import * as KnexConfig from './knexfile';
+import {UsersRepository} from './repositories/usersRepository';
+
+const KnexConfig = require('./knexfile');
 
 export class UnitOfWork {
     private _knex: Knex;
-    private _logger: LoggerInstance;
+    public _logger: LoggerInstance;
     public _transaction: Knex.Transaction;
+
+    private _usersRepository: UsersRepository;
 
     constructor(logger: LoggerInstance) {
         this._logger = logger;
@@ -25,7 +29,9 @@ export class UnitOfWork {
             if (this.inTransaction) {
                 this.rollbackTransaction();
             }
-            this._logger.error(JSON.stringify(err));
+            this._logger.error(err.name + ': ' + err.message);
+            if (err.stack) this._logger.error(err.stack);
+            throw err;
         });
 
         this._logger.info(`${env} database loaded successfully`);
@@ -63,5 +69,10 @@ export class UnitOfWork {
 
     get inTransaction() {
         return this._transaction !== null;
+    }
+
+    // repositories
+    get usersRepository(): UsersRepository {
+        return this._usersRepository = this._usersRepository || new UsersRepository(this);
     }
 }
