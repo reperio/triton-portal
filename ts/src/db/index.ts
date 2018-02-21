@@ -17,7 +17,6 @@ export class UnitOfWork {
         this._logger = logger;
         const env = process.env.NODE_ENV || 'development';
 
-        this._logger.info(`Loading ${env} database`);
         const dbConfig: any = KnexConfig;
         this._knex = Knex(dbConfig[env]);
         Model.knex(this._knex);
@@ -34,8 +33,6 @@ export class UnitOfWork {
             if (err.stack) this._logger.error(err.stack);
             throw err;
         });
-
-        this._logger.info(`${env} database loaded successfully`);
     }
 
     // transaction helpers
