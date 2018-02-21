@@ -1,4 +1,4 @@
-import Config from '../config';
+const Config = require('../config').default;
 const config: any = new Config();
 const dbConfig = config.default.db;
 
