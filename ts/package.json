@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "start": "npm run-script build && node lib/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "npm run-script test && echo '' && node lib/index.js",
+    "test": "npm run-script build && jest spec.js --coverage --verbose --forceExit"
   },
   "repository": {
     "type": "git",

@@ -3,8 +3,12 @@ import {v4} from 'uuid';
 import {BaseModel} from './baseModel';
 
 export class User extends BaseModel {
-    private id: string; 
-
+    public id: string; 
+    public username: string;
+    public password: string;
+    public firstName: string;
+    public lastName: string;
+    
     static get tableName() {
         return 'users';
     }
