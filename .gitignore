@@ -60,3 +60,6 @@ typings/
 # user config files
 *.user
 *.user.*
+
+# typescript compile directory
+lib

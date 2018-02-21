@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "jest spec.js --coverage --verbose"
+    "build": "tsc",
+    "start": "npm run-script test && echo '' && node lib/index.js",
+    "test": "npm run-script build && jest spec.js --coverage --verbose --forceExit"
   },
   "repository": {
     "type": "git",
@@ -32,6 +33,15 @@
     "vision": "^5.3.1"
   },
   "devDependencies": {
-    "jest": "^22.1.4"
+    "@types/bcryptjs": "^2.4.1",
+    "@types/hapi": "^17.0.0",
+    "@types/joi": "^13.0.5",
+    "@types/knex": "^0.14.7",
+    "@types/node": "^9.4.6",
+    "@types/uuid": "^3.4.3",
+    "@types/winston": "^2.3.8",
+    "jest": "^22.1.4",
+    "ts-node": "^5.0.0",
+    "typescript": "^2.7.2"
   }
 }

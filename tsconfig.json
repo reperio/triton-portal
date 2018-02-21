@@ -1,0 +1,22 @@
+
+{
+  "compilerOptions": {
+    "rootDir": "./src",
+    "outDir": "./lib/",
+    "noImplicitAny": true,
+    "module": "commonjs",
+    "target": "esnext",
+    "allowJs": true,
+    "sourceMap": true,
+    "allowSyntheticDefaultImports": true,
+    "moduleResolution": "node",
+    "lib": ["es2015", "es2017"]
+  },
+  "exclude": [
+    "node_modules",
+    "Typings",
+    "tests",
+    "coverage",
+    "lib"
+  ]
+}
