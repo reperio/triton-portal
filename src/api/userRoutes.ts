@@ -1,6 +1,8 @@
 import * as Joi from 'joi';
 import {Request, ResponseToolkit, ServerRoute} from 'hapi';
 
+import {UnitOfWork} from '../db';
+
 const routes: ServerRoute[] =  [
     {
         method: 'GET',
@@ -13,7 +15,7 @@ const routes: ServerRoute[] =  [
         },
         //TODO request should use type 'Request' but fails on getNewUoW()
         handler: async(request: any, h: ResponseToolkit) => {
-            const uow = await request.app.getNewUoW();
+            const uow: UnitOfWork = await request.app.getNewUoW();
 
             const users = await uow.usersRepository.getAllUsers();
             return {status: 0, message: 'success', data: users};
@@ -33,7 +35,7 @@ const routes: ServerRoute[] =  [
             }
         },
         handler: async (request: any, h: ResponseToolkit) => {
-            const uow = await request.app.getNewUoW();
+            const uow: UnitOfWork = await request.app.getNewUoW();
 
             const userId = request.params.id;
             const user = await uow.usersRepository.getUserById(userId);
@@ -59,7 +61,7 @@ const routes: ServerRoute[] =  [
             }
         },
         handler: async (request: any, h: ResponseToolkit) => {
-            const uow = await request.app.getNewUoW();
+            const uow: UnitOfWork = await request.app.getNewUoW();
 
             const user = request.payload.user;
             const result = await uow.usersRepository.createUser(user);
@@ -88,7 +90,7 @@ const routes: ServerRoute[] =  [
             }
         },
         handler: async (request: any, h: ResponseToolkit) => {
-            const uow = await request.app.getNewUoW();
+            const uow: UnitOfWork = await request.app.getNewUoW();
 
             const userId = request.params.id;
             const user = request.payload.user;
@@ -115,7 +117,7 @@ const routes: ServerRoute[] =  [
             }
         },
         handler: async (request: any, h: ResponseToolkit) => {
-            const uow = await request.app.getNewUoW();
+            const uow: UnitOfWork = await request.app.getNewUoW();
 
             const userId = request.params.id;
             const password = request.payload.user.password;
@@ -137,7 +139,7 @@ const routes: ServerRoute[] =  [
             }
         },
         handler: async (request: any, h: ResponseToolkit) => {
-            const uow = await request.app.getNewUoW();
+            const uow: UnitOfWork = await request.app.getNewUoW();
 
             const userId = request.params.id;
             const result = await uow.usersRepository.deleteUserById(userId);
