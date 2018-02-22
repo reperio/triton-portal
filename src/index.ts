@@ -1,12 +1,13 @@
 import * as Server from 'hapijs-starter';
 
 import * as API from './api';
-import Config from './config';
+const Config = require('./config');
 import {UnitOfWork} from './db';
+import {VmApi} from './triton/vmApi';
 
 
 const start = async function() {
-    const config = new Config();
+    const config = new Config.default();
     const server = new Server.default();
 
     // register swagger and it's required plugins
@@ -45,7 +46,20 @@ const start = async function() {
 
                 return h.continue;
             }
-    })
+    });
+
+    // add method to get VmApi handler off of the request
+    await server.registerExtension({
+        type: 'onRequest',
+            method: async (request, h) => {        
+                request.app.getNewVmApi = async () => {
+                    const vmApi = new VmApi(config.default.triton.vmApiIpAddress, server.app.logger);
+                    return vmApi;
+                };
+
+                return h.continue;
+            }
+    });
 
     await server.startServer();
 } 
