@@ -5,5 +5,9 @@ export default {
         password: 'reperio',
         host: 'localhost',
         database: 'reperio_triton_portal_dev'
+    },
+    triton: {
+        cnApiIpAddress: '172.20.33.22',
+        vmApiIpAddress: '172.20.33.27'
     }
 };
