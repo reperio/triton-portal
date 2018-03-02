@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcryptjs';
 
-import {UnitOfWork} from '../index';
-import {User} from '../models/user';
+import { UnitOfWork } from '../index';
+import { User } from '../models/user';
 
 export class UsersRepository {
     private uow: UnitOfWork;
@@ -37,7 +37,7 @@ export class UsersRepository {
 
         const q = User.query(this.uow._transaction)
             .where('username', username);
-        
+
         const users = await q;
         if (users.length > 1) {
             throw new Error('Too many results');
@@ -49,61 +49,81 @@ export class UsersRepository {
     async createUser(user: any) {
         this.uow._logger.info(`Creating new user: ${JSON.stringify(user)}`);
 
-        const userModel = User.fromJson({
-            username: user.username,
-            password: await bcrypt.hash(user.password, 12),
-            firstName: user.firstName,
-            lastName: user.lastName
-        });
+        try {
+            const userModel = User.fromJson({
+                username: user.username,
+                password: await bcrypt.hash(user.password, 12),
+                firstName: user.firstName,
+                lastName: user.lastName
+            });
 
-        const q = User.query(this.uow._transaction)
-            .insertAndFetch(userModel);
+            const q = User.query(this.uow._transaction)
+                .insertAndFetch(userModel);
 
-        const newUser = await q;
-        return newUser;
+            const newUser = await q;
+            return newUser;
+        } catch (err) {
+            this.uow._logger.error(err);
+            throw err;
+        }
     }
 
     //TODO create type for user
     async updateUser(userId: string, user: any) {
         this.uow._logger.info(`Updating user with id: ${userId}`);
 
-        const userModel = User.fromJson({
-            username: user.username,
-            firstName: user.firstName,
-            lastName: user.lastName
-        });
+        try {
+            const userModel = User.fromJson({
+                username: user.username,
+                firstName: user.firstName,
+                lastName: user.lastName
+            });
 
-        const q = User.query(this.uow._transaction)
-            .where('id', userId)
-            .updateAndFetchById(userId, userModel);
+            const q = User.query(this.uow._transaction)
+                .where('id', userId)
+                .updateAndFetchById(userId, userModel);
 
-        const updatedUser = await q;
-        return updatedUser;
+            const updatedUser = await q;
+            return updatedUser;
+        } catch (err) {
+            this.uow._logger.error(err);
+            throw err;
+        }
     }
 
     async changePassword(userId: string, newPassword: string) {
         this.uow._logger.info(`Updating password for user: ${userId}`);
 
-        const userModel = User.fromJson({
-            password: await bcrypt.hash(newPassword, 12)
-        });
+        try {
+            const userModel = User.fromJson({
+                password: await bcrypt.hash(newPassword, 12)
+            });
 
-        const q = User.query(this.uow._transaction)
-            .where('id', userId)
-            .updateAndFetchById(userId, userModel);
-        
-        const updatedUser = await q;
-        return updatedUser;
+            const q = User.query(this.uow._transaction)
+                .where('id', userId)
+                .updateAndFetchById(userId, userModel);
+
+            const updatedUser = await q;
+            return updatedUser;
+        } catch (err) {
+            this.uow._logger.error(err);
+            throw err;
+        }
     }
 
     async deleteUserById(userId: string) {
         this.uow._logger.info(`Deleting user with id: ${userId}`);
 
-        const q = User .query(this.uow._transaction)
-            .where('id', userId)
-            .delete();
+        try {
+            const q = User.query(this.uow._transaction)
+                .where('id', userId)
+                .delete();
 
-        await q;
-        return true;
+            await q;
+            return true;
+        } catch (err) {
+            this.uow._logger.error(err);
+            throw err;
+        }
     }
 }
