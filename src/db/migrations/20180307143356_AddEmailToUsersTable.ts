@@ -3,21 +3,11 @@ import * as Knex from "knex";
 exports.up = function (knex: Knex): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-            await knex.schema.createTable('users', (t) => {
-                t.uuid('id')
-                    .notNullable()
-                    .primary();
-                t.string('username')
+            await knex.schema.table('users', (t) => {
+                t.string('email')
                     .unique()
                     .notNullable();
-                t.string('password')
-                    .notNullable();
-                t.string('firstName');
-                t.string('lastName');
-                t.dateTime('createdAt');
-                t.dateTime('updatedAt');
             });
-
             resolve();
         } catch(err) {
             console.log(err);
@@ -29,8 +19,9 @@ exports.up = function (knex: Knex): Promise<any> {
 exports.down = function (knex: Knex): Promise<any> {
     return new Promise(async (resolve, reject) => {
         try {
-            await knex.schema.dropTable('users');
-
+            await knex.schema.table('users', (t) => {
+                t.dropColumns('email')
+            });
             resolve();
         } catch(err) {
             console.log(err);

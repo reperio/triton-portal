@@ -13,7 +13,8 @@ exports.seed = function (knex: Knex): Promise<any> {
                     firstName: 'admin',
                     lastName: 'user',
                     createdAt: new Date(),
-                    updatedAt: new Date()
+                    updatedAt: new Date(),
+                    email: 'test@test.com'
                 }
             ]).then(() => { resolve();});
         });

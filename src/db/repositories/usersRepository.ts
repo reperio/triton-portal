@@ -29,7 +29,10 @@ export class UsersRepository {
         if (users.length > 1) {
             throw new Error('Too many results');
         }
-        return users[0];
+        else if (users.length == 1) {
+            return users[0];
+        }
+        return null;
     }
 
     async getUserByUsername(username: string) {
@@ -42,7 +45,26 @@ export class UsersRepository {
         if (users.length > 1) {
             throw new Error('Too many results');
         }
-        return users[0];
+        else if (users.length == 1) {
+            return users[0];
+        }
+        return null;
+    }
+
+    async getUserByEmail(email: string) {
+        this.uow._logger.info(`Fetching user with email: ${email}`);
+
+        const q = User.query(this.uow._transaction)
+            .where('email', email);
+
+        const users = await q;
+        if (users.length > 1) {
+            throw new Error('Too many results');
+        }
+        else if (users.length == 1) {
+            return users[0];
+        }
+        return null;
     }
 
     //TODO create type for user

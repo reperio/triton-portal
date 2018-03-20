@@ -20,3 +20,7 @@ Rollback migrations with `knex migrate:rollback --knexfile path\_to\_knexfile`
 
 ## API Documentation 
 View the hapi-swagger plugin page at http://localhost:3000/documentation
+
+## origin
+apply following code to node_modules -> hapijs-starter -> index.js
+this.server = new Hapi.Server({ port: this.config.port, host: this.config.host, routes: {cors: {origin: ["*"], additionalExposedHeaders: ["Authorization"]}}});

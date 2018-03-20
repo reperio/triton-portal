@@ -8,6 +8,7 @@ export class User extends BaseModel {
     public password: string;
     public firstName: string;
     public lastName: string;
+    public email: string;
     
     static get tableName() {
         return 'users';
@@ -27,7 +28,8 @@ export class User extends BaseModel {
                 firstName: {type: 'string'},
                 lastName: {type: 'string'},
                 createdAt: {type: 'string'},
-                updatedAt: {type: 'string'}
+                updatedAt: {type: 'string'},
+                email: {type: 'string'}
             }
         };
     }
