@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.1",
-    "@types/hapi": "^17.0.0",
+    "@types/hapi": "^16.1.14",
     "@types/joi": "^13.0.5",
     "@types/knex": "^0.14.7",
     "@types/node": "^9.4.6",

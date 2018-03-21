@@ -1,9 +1,9 @@
 import * as Joi from 'joi';
-import {Request, ResponseToolkit, ServerRoute} from 'hapi';
+import {Request, ReplyWithContinue, RouteConfiguration} from 'hapi';
 
 import {UnitOfWork} from '../db';
 
-const routes: ServerRoute[] =  [
+const routes: RouteConfiguration[] =  [
     {
         method: 'GET',
         path: '/users',
@@ -14,7 +14,7 @@ const routes: ServerRoute[] =  [
             cors: true
         },
         //TODO request should use type 'Request' but fails on getNewUoW()
-        handler: async(request: any, h: ResponseToolkit) => {
+        handler: async(request: Request, h: ReplyWithContinue) => {
             const uow: UnitOfWork = await request.app.getNewUoW();
 
             const users = await uow.usersRepository.getAllUsers();
@@ -34,7 +34,7 @@ const routes: ServerRoute[] =  [
                 }
             }
         },
-        handler: async (request: any, h: ResponseToolkit) => {
+        handler: async (request: Request, h: ReplyWithContinue) => {
             const uow: UnitOfWork = await request.app.getNewUoW();
 
             const userId = request.params.id;
@@ -60,7 +60,7 @@ const routes: ServerRoute[] =  [
                 }   
             }
         },
-        handler: async (request: any, h: ResponseToolkit) => {
+        handler: async (request: Request, h: ReplyWithContinue) => {
             const uow: UnitOfWork = await request.app.getNewUoW();
 
             const user = request.payload.user;
@@ -89,7 +89,7 @@ const routes: ServerRoute[] =  [
                 }   
             }
         },
-        handler: async (request: any, h: ResponseToolkit) => {
+        handler: async (request: Request, h: ReplyWithContinue) => {
             const uow: UnitOfWork = await request.app.getNewUoW();
 
             const userId = request.params.id;
@@ -116,7 +116,7 @@ const routes: ServerRoute[] =  [
                 }   
             }
         },
-        handler: async (request: any, h: ResponseToolkit) => {
+        handler: async (request: Request, h: ReplyWithContinue) => {
             const uow: UnitOfWork = await request.app.getNewUoW();
 
             const userId = request.params.id;
@@ -138,7 +138,7 @@ const routes: ServerRoute[] =  [
                 }
             }
         },
-        handler: async (request: any, h: ResponseToolkit) => {
+        handler: async (request: Request, h: ReplyWithContinue) => {
             const uow: UnitOfWork = await request.app.getNewUoW();
 
             const userId = request.params.id;
