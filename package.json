@@ -4,8 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "build": "tsc",
-    "start": "npm run-script test && echo '' && node lib/index.js",
+    "build": "npm run clean && tsc",
+    "clean": "rm -rf lib/",
+    "start": "npm run-script build && node lib/index.js",
     "test": "npm run-script build && jest spec.js --coverage --verbose --forceExit"
   },
   "repository": {

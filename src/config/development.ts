@@ -7,7 +7,7 @@ export default {
         database: 'reperio_triton_portal_dev'
     },
     triton: {
-        cnApiIpAddress: '172.20.33.22',
-        vmApiIpAddress: '172.20.33.27'
+        cnApiIpAddress: '10.101.0.22',
+        vmApiIpAddress: '10.101.0.26'
     }
 };

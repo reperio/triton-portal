@@ -17,7 +17,8 @@ const start = async function() {
         plugin: require('hapi-swagger'),
         options: {
             grouping: 'tags',
-            sortEndpoints: 'method'
+            sortEndpoints: 'method',
+            host: 'localhost:3000'
         }
     };
     await server.registerAdditionalPlugin(swaggerPluginPackage);
