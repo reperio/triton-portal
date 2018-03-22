@@ -9,7 +9,7 @@ import {VmApi} from './triton/vmApi';
 
 const start = async function() {
     const config = new Config.default();
-    const server = new Server();
+    const server = new Server({statusMonitor: false});
 
     // register swagger and it's required plugins
     await server.registerAdditionalPlugin(require('inert'));
