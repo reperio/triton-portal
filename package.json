@@ -23,7 +23,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "hapi-swagger": "^9.0.2",
-    "hapijs-starter": "^2.0.0",
+    "hapijs-starter": "^3.0.0",
     "inert": "^5.1.0",
     "joi": "^13.1.2",
     "knex": "^0.14.2",
@@ -36,7 +36,7 @@
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.1",
-    "@types/hapi": "^17.0.0",
+    "@types/hapi": "^16.1.14",
     "@types/joi": "^13.0.5",
     "@types/knex": "^0.14.7",
     "@types/node": "^9.4.6",

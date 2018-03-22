@@ -1,9 +1,9 @@
 import * as Joi from 'joi';
-import {Request, ResponseToolkit, ServerRoute} from 'hapi';
+import {Request, ReplyWithContinue, RouteConfiguration} from 'hapi';
 
 import {VmApi} from '../triton/vmApi';
 
-const routes: ServerRoute[] =  [
+const routes: RouteConfiguration[] =  [
     {
         method: 'GET',
         path: '/triton/vms',
@@ -14,7 +14,7 @@ const routes: ServerRoute[] =  [
             cors: true
         },
         //TODO request should use type 'Request' but fails on getNewVmApi()
-        handler: async(request: any, h: ResponseToolkit) => {
+        handler: async(request: Request, h: ReplyWithContinue) => {
             const vmApi: VmApi = await request.app.getNewVmApi();
 
             const virtualMachines = await vmApi.getAllVirtualMachines();
@@ -35,7 +35,7 @@ const routes: ServerRoute[] =  [
             }
         },
         //TODO request should use type 'Request' but fails on getNewVmApi()
-        handler: async(request: any, h: ResponseToolkit) => {
+        handler: async(request: Request, h: ReplyWithContinue) => {
             const vmApi: VmApi = await request.app.getNewVmApi();
 
             const virtualMachineUuid = request.params.uuid;
