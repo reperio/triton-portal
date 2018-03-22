@@ -13,8 +13,8 @@ describe('VmApi tests', () => {
     });
 
     it('Can fetch specific virtual machine by uuid', async () => {
-        const virtualMachine = await vmApi.getVirtualMachineByUuid('ffa17b90-e99d-eb25-eec0-a91b85f4eaaf');
-        expect(virtualMachine.alias).toBe('cpc-iis-01');
+        const virtualMachine = await vmApi.getVirtualMachineByUuid('ffd72e67-511a-cc12-f1db-a61bb68f822b');
+        expect(virtualMachine.alias).toBe('leo-web-qa');
     });
 
 
