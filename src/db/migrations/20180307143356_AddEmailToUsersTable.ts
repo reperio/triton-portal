@@ -6,7 +6,7 @@ exports.up = function (knex: Knex): Promise<any> {
             await knex.schema.table('users', (t) => {
                 t.string('email')
                     .unique()
-                    .notNullable();
+                    .nullable();
             });
             resolve();
         } catch(err) {

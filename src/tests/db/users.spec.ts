@@ -60,7 +60,8 @@ describe('User Tests', () => {
             username: 'test',
             password: 'test',
             firstName: 'Test',
-            lastName: 'User'
+            lastName: 'User',
+            email: 'example@test.com'
         };
         const newUser = await uow.usersRepository.createUser(user);
         expect(newUser.username).toBe(user.username);
