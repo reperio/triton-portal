@@ -76,7 +76,8 @@ export class UsersRepository {
                 username: user.username,
                 password: await bcrypt.hash(user.password, 12),
                 firstName: user.firstName,
-                lastName: user.lastName
+                lastName: user.lastName,
+				email: user.email
             });
 
             const q = User.query(this.uow._transaction)
@@ -98,7 +99,8 @@ export class UsersRepository {
             const userModel = User.fromJson({
                 username: user.username,
                 firstName: user.firstName,
-                lastName: user.lastName
+                lastName: user.lastName,
+				email: user.email
             });
 
             const q = User.query(this.uow._transaction)
