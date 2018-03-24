@@ -4,7 +4,7 @@ import * as API from './api';
 const Config = require('./config');
 import {Server} from 'hapijs-starter';
 import {UnitOfWork} from './db';
-import {VmApi} from './triton/vmApi';
+import {Vmapi} from './triton/vmApi';
 const jwt = require("jsonwebtoken");
 
 
@@ -56,7 +56,7 @@ const start = async function() {
         type: 'onRequest',
             method: async (request: Request, h: ReplyWithContinue) => {
                 request.app.getNewVmApi = async () => {
-                    const vmApi = new VmApi(config.default.triton.vmApiIpAddress, server.app.logger);
+                    const vmApi = new Vmapi(config.default.tritonRoutes.vmApi, server.app.logger);
                     return vmApi;
                 };
 

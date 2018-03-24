@@ -1,7 +1,11 @@
 import * as request from 'request-promise-native';
 import {LoggerInstance} from 'winston';
 
-export class VmApi {
+/* 
+    Documentation for vmapi: https://github.com/joyent/sdc-vmapi/blob/master/docs/index.md
+*/
+
+export class Vmapi {
     private _baseUrl: string;
     private _logger: LoggerInstance;
 

@@ -1,7 +1,7 @@
 import * as Joi from 'joi';
 import {Request, ReplyWithContinue, RouteConfiguration} from 'hapi';
 
-import {VmApi} from '../triton/vmApi';
+import {Vmapi} from '../triton/vmapi';
 
 const routes: RouteConfiguration[] =  [
     {
@@ -9,15 +9,15 @@ const routes: RouteConfiguration[] =  [
         path: '/triton/vms',
         config: {
             description: 'Get all virtual machines from VmApi',
-            tags: ['api', 'VmApi'],
+            tags: ['api', 'vmapi'],
             notes: ['Fetches and returns all virtual machines from Triton'],
             cors: true
         },
         //TODO request should use type 'Request' but fails on getNewVmApi()
         handler: async(request: Request, h: ReplyWithContinue) => {
-            const vmApi: VmApi = await request.app.getNewVmApi();
+            const vmapi: Vmapi = await request.app.getNewVmApi();
 
-            const virtualMachines = await vmApi.getAllVirtualMachines();
+            const virtualMachines = await vmapi.getAllVirtualMachines();
             return {status: 0, message: 'success', data: virtualMachines};
         }
     }, {
@@ -25,7 +25,7 @@ const routes: RouteConfiguration[] =  [
         path: '/triton/vms/{uuid}',
         config: {
             description: 'Get all virtual machines from VmApi',
-            tags: ['api', 'VmApi'],
+            tags: ['api', 'vmapi'],
             notes: ['Fetches and returns all virtual machines from Triton'],
             cors: true,
             validate: {
@@ -36,10 +36,10 @@ const routes: RouteConfiguration[] =  [
         },
         //TODO request should use type 'Request' but fails on getNewVmApi()
         handler: async(request: Request, h: ReplyWithContinue) => {
-            const vmApi: VmApi = await request.app.getNewVmApi();
+            const vmapi: Vmapi = await request.app.getNewVmApi();
 
             const virtualMachineUuid = request.params.uuid;
-            const virtualMachine = await vmApi.getVirtualMachineByUuid(virtualMachineUuid);
+            const virtualMachine = await vmapi.getVirtualMachineByUuid(virtualMachineUuid);
             return {status: 0, message: 'success', data: virtualMachine};
         }
     }
