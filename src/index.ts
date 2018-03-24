@@ -5,6 +5,7 @@ const Config = require('./config');
 import {Server} from 'hapijs-starter';
 import {UnitOfWork} from './db';
 import {Vmapi} from './triton/vmApi';
+import {Papi} from './triton/papi';
 const jwt = require("jsonwebtoken");
 
 
@@ -58,6 +59,19 @@ const start = async function() {
                 request.app.getNewVmApi = async () => {
                     const vmApi = new Vmapi(config.default.tritonRoutes.vmApi, server.app.logger);
                     return vmApi;
+                };
+
+                return h.continue;
+            }
+    });
+
+    // add method to get VmApi handler off of the request
+    await server.registerExtension({
+        type: 'onRequest',
+            method: async (request: Request, h: ReplyWithContinue) => {
+                request.app.getNewPapi = async () => {
+                    const papi = new Papi(config.default.tritonRoutes.papi, server.app.logger);
+                    return papi;
                 };
 
                 return h.continue;
