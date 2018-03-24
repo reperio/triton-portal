@@ -2,7 +2,7 @@ import * as request from 'request-promise-native';
 import {LoggerInstance} from 'winston';
 
 /* 
-    Documentation for workflow api: https://github.com/joyent/sdc-workflow/blob/master/docs/index.md
+    Documentation for workflow api: https://github.com/joyent/sdc-workflow/blob/master/docs/api.md
 */
 
 export class Workflow {
