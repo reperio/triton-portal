@@ -53,4 +53,191 @@ export class Vmapi {
             throw err;
         }
     }
+
+    async createVirtualMachine(virtualMachine: any) {
+
+        this._logger.info(`Creating new virtual machine: ${JSON.stringify(virtualMachine)}`);
+        const options: request.OptionsWithUri = {
+            uri: this._baseUrl,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: virtualMachine
+        };
+
+        try {
+            const result = JSON.parse(await request(options));
+            return result;
+        } catch (err) {
+            this._logger.error('Failed to create vm');
+            this._logger.error(err);
+            throw err;
+        }
+    }
+
+    //TODO update virtual machine
+
+    async startVirtualMachine(ownerId: string, vmId: string) {
+        const payload = {
+            uuid: vmId,
+            owner_uuid: ownerId,
+            action: 'start'
+        };
+
+        this._logger.info(`Starting virtual machine: ${vmId}`);
+        const options: request.OptionsWithUri = {
+            uri: `${this._baseUrl}/${vmId}?action=start`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: payload
+        };
+
+        try {
+            const result = JSON.parse(await request(options));
+            return result;
+        } catch (err) {
+            this._logger.error('Failed to start vm');
+            this._logger.error(err);
+            throw err;
+        }
+    }
+
+    async stopVirtualMachine(ownerId: string, vmId: string) {
+        const payload = {
+            uuid: vmId,
+            owner_uuid: ownerId,
+            action: 'stop'
+        };
+
+        this._logger.info(`Stopping virtual machine: ${vmId}`);
+        const options: request.OptionsWithUri = {
+            uri: `${this._baseUrl}/${vmId}?action=stop`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: payload
+        };
+
+        try {
+            const result = JSON.parse(await request(options));
+            return result;
+        } catch (err) {
+            this._logger.error('Failed to stop vm');
+            this._logger.error(err);
+            throw err;
+        }
+    }
+
+    async rebootVirtualMachine(ownerId: string, vmId: string) {
+        const payload = {
+            uuid: vmId,
+            owner_uuid: ownerId,
+            action: 'reboot'
+        };
+
+        this._logger.info(`Rebooting virtual machine: ${vmId}`);
+        const options: request.OptionsWithUri = {
+            uri: `${this._baseUrl}/${vmId}?action=reboot`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: payload
+        };
+
+        try {
+            const result = JSON.parse(await request(options));
+            return result;
+        } catch (err) {
+            this._logger.error('Failed to reboot vm');
+            this._logger.error(err);
+            throw err;
+        }
+    }
+
+    async addVirtualMachineToNetwork(ownerId: string, vmId: string, networkId: string) {
+        const payload = {
+            uuid: vmId,
+            owner_uuid: ownerId,
+            action: 'add_nics',
+            networks: [networkId]
+        };
+
+        this._logger.info(`Adding virtual machine: ${vmId} to network: ${networkId}`);
+        const options: request.OptionsWithUri = {
+            uri: `${this._baseUrl}/${vmId}?action=add_nics`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: payload
+        };
+
+        try {
+            const result = JSON.parse(await request(options));
+            return result;
+        } catch (err) {
+            this._logger.error('Failed to add vm to network');
+            this._logger.error(err);
+            throw err;
+        }
+    }
+
+    async removeNicFromVirtualMachine(ownerId: string, vmId: string, macId: string) {
+        const payload = {
+            uuid: vmId,
+            owner_uuid: ownerId,
+            action: 'remove_nics',
+            macs: [macId]
+        };
+
+        this._logger.info(`Removing NIC: ${macId} from virtual machine: ${vmId}`);
+        const options: request.OptionsWithUri = {
+            uri: `${this._baseUrl}/${vmId}?action=add_nics`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: payload
+        };
+
+        try {
+            const result = JSON.parse(await request(options));
+            return result;
+        } catch (err) {
+            this._logger.error('Failed to remove NIC from vm');
+            this._logger.error(err);
+            throw err;
+        }
+    }
+
+    async deleteVirtualMachine(ownerId: string, vmId: string) {
+        const payload = {
+            uuid: vmId,
+            owner_uuid: ownerId
+        };
+
+        this._logger.info(`Deleting virtual machine: ${vmId}`);
+        const options: request.OptionsWithUri = {
+            uri: `${this._baseUrl}/${vmId}?owner_uuid=${ownerId}`,
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: payload
+        };
+
+        try {
+            const result = JSON.parse(await request(options));
+            return result;
+        } catch (err) {
+            this._logger.error('Failed to delete vm');
+            this._logger.error(err);
+            throw err;
+        }
+    }
 }

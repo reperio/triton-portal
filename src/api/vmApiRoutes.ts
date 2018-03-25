@@ -13,7 +13,6 @@ const routes: RouteConfiguration[] =  [
             notes: ['Fetches and returns all virtual machines from Triton'],
             cors: true
         },
-        //TODO request should use type 'Request' but fails on getNewVmApi()
         handler: async(request: Request, h: ReplyWithContinue) => {
             const vmapi: Vmapi = await request.app.getNewVmApi();
 
@@ -34,13 +33,205 @@ const routes: RouteConfiguration[] =  [
                 }
             }
         },
-        //TODO request should use type 'Request' but fails on getNewVmApi()
         handler: async(request: Request, h: ReplyWithContinue) => {
             const vmapi: Vmapi = await request.app.getNewVmApi();
 
             const virtualMachineUuid = request.params.uuid;
             const virtualMachine = await vmapi.getVirtualMachineByUuid(virtualMachineUuid);
             return {status: 0, message: 'success', data: virtualMachine};
+        }
+    }, {
+        method: 'POST',
+        path: '/triton/vms',
+        config: {
+            description: 'Create a new virtual machine',
+            tags: ['api', 'vmapi'],
+            notes: ['Creates a new virtual machine in Triton SDC'],
+            cors: true,
+            validate: {
+                payload: {
+                    virtualMachine: {
+                        owner_uuid: Joi.string().guid().required(),
+                        networks: Joi.array().items(Joi.string().guid()),
+                        brand: Joi.string().required(),
+                        billing_id: Joi.string().guid().required(),
+                        image_uuid: Joi.string().guid()
+                    }
+                }
+            }
+        },
+        handler: async(request: Request, h: ReplyWithContinue) => {
+            const vmapi: Vmapi = await request.app.getNewVmApi();
+
+            const virtualMachine = request.payload.virtualMachine;
+
+            const result = await vmapi.createVirtualMachine(virtualMachine);
+            return {status: 0, message: 'success', data: result};
+        }
+    }, {
+        method: 'PUT',
+        path: '/triton/vms/{id}/start',
+        config: {
+            description: 'Start a virtual machine',
+            tags: ['api', 'vmapi'],
+            notes: ['Starts a virtual machine with the provided id'],
+            cors: true,
+            validate: {
+                params: {
+                    id: Joi.string().guid().required()
+                },
+                query: {
+                    owner_id: Joi.string().guid().required()
+                }
+            }
+        },
+        handler: async(request: Request, h: ReplyWithContinue) => {
+            const vmapi: Vmapi = await request.app.getNewVmApi();
+
+            const owner_id = request.query.owner_id;
+            const vmId = request.params.id;
+
+
+            const result = await vmapi.startVirtualMachine(owner_id, vmId);
+            return {status: 0, message: 'success', data: result};
+        }
+    }, {
+        method: 'PUT',
+        path: '/triton/vms/{id}/stop',
+        config: {
+            description: 'Stop a virtual machine',
+            tags: ['api', 'vmapi'],
+            notes: ['Stops a virtual machine with the provided id'],
+            cors: true,
+            validate: {
+                params: {
+                    id: Joi.string().guid().required()
+                },
+                query: {
+                    owner_id: Joi.string().guid().required()
+                }
+            }
+        },
+        handler: async(request: Request, h: ReplyWithContinue) => {
+            const vmapi: Vmapi = await request.app.getNewVmApi();
+
+            const owner_id = request.query.owner_id;
+            const vmId = request.params.id;
+
+
+            const result = await vmapi.stopVirtualMachine(owner_id, vmId);
+            return {status: 0, message: 'success', data: result};
+        }
+    }, {
+        method: 'PUT',
+        path: '/triton/vms/{id}/reboot',
+        config: {
+            description: 'Reboot a virtual machine',
+            tags: ['api', 'vmapi'],
+            notes: ['Reboots a virtual machine with the provided id'],
+            cors: true,
+            validate: {
+                params: {
+                    id: Joi.string().guid().required()
+                },
+                query: {
+                    owner_id: Joi.string().guid().required()
+                }
+            }
+        },
+        handler: async(request: Request, h: ReplyWithContinue) => {
+            const vmapi: Vmapi = await request.app.getNewVmApi();
+
+            const owner_id = request.query.owner_id;
+            const vmId = request.params.id;
+
+
+            const result = await vmapi.rebootVirtualMachine(owner_id, vmId);
+            return {status: 0, message: 'success', data: result};
+        }
+    }, {
+        method: 'PUT',
+        path: '/triton/vms/{id}/addNetwork',
+        config: {
+            description: 'Add a virtual machine to a network',
+            tags: ['api', 'vmapi'],
+            notes: ['Adds a virtual machine with the provided id to the network with the provided network id'],
+            cors: true,
+            validate: {
+                params: {
+                    id: Joi.string().guid().required()
+                },
+                query: {
+                    owner_id: Joi.string().guid().required(),
+                    network_id: Joi.string().guid().required()
+                }
+            }
+        },
+        handler: async(request: Request, h: ReplyWithContinue) => {
+            const vmapi: Vmapi = await request.app.getNewVmApi();
+
+            const owner_id = request.query.owner_id;
+            const network_id = request.query.network_id;
+            const vmId = request.params.id;
+
+
+            const result = await vmapi.addVirtualMachineToNetwork(owner_id, vmId, network_id);
+            return {status: 0, message: 'success', data: result};
+        }
+    }, {
+        method: 'PUT',
+        path: '/triton/vms/{id}/removeNetwork',
+        config: {
+            description: 'Remove a virtual machine from a network',
+            tags: ['api', 'vmapi'],
+            notes: ['Removes a virtual machine with the provided id from the network with the provided network id'],
+            cors: true,
+            validate: {
+                params: {
+                    id: Joi.string().guid().required()
+                },
+                query: {
+                    owner_id: Joi.string().guid().required(),
+                    network_id: Joi.string().guid().required()
+                }
+            }
+        },
+        handler: async(request: Request, h: ReplyWithContinue) => {
+            const vmapi: Vmapi = await request.app.getNewVmApi();
+
+            const owner_id = request.query.owner_id;
+            const network_id = request.query.network_id;
+            const vmId = request.params.id;
+
+
+            const result = await vmapi.removeNicFromVirtualMachine(owner_id, vmId, network_id);
+            return {status: 0, message: 'success', data: result};
+        }
+    }, {
+        method: 'DELETE',
+        path: '/triton/vms/{id}',
+        config: {
+            description: 'Delete a virtual machine',
+            tags: ['api', 'vmapi'],
+            notes: ['Deletes a virtual machine with the provided id'],
+            cors: true,
+            validate: {
+                params: {
+                    id: Joi.string().guid().required()
+                },
+                query: {
+                    owner_id: Joi.string().guid().required()
+                }
+            }
+        },
+        handler: async(request: Request, h: ReplyWithContinue) => {
+            const vmapi: Vmapi = await request.app.getNewVmApi();
+
+            const owner_id = request.query.owner_id;
+            const vmId = request.params.id;
+
+            const result = await vmapi.deleteVirtualMachine(owner_id, vmId);
+            return {status: 0, message: 'success', data: result};
         }
     }
 ];
