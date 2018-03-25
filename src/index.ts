@@ -57,7 +57,7 @@ const start = async function() {
         type: 'onRequest',
             method: async (request: Request, h: ReplyWithContinue) => {
                 request.app.getNewVmApi = async () => {
-                    const vmApi = new Vmapi(config.default.tritonRoutes.vmApi, server.app.logger);
+                    const vmApi = new Vmapi(config.default.tritonRoutes.vmapi, server.app.logger);
                     return vmApi;
                 };
 
