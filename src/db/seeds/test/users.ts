@@ -13,7 +13,9 @@ exports.seed = function (knex: Knex): Promise<any> {
                     firstName: 'admin',
                     lastName: 'user',
                     createdAt: new Date(),
-                    updatedAt: new Date()
+                    updatedAt: new Date(),
+                    email: 'test@test.com',
+                    ownerUuid: '6dc1861a-3087-477e-94e3-9a8475d95f65'
                 }
             ]).then(() => { resolve();});
         });

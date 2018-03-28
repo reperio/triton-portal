@@ -41,6 +41,27 @@ const routes: RouteConfiguration[] =  [
             return {status: 0, message: 'success', data: virtualMachine};
         }
     }, {
+        method: 'GET',
+        path: '/triton/vms/owner/{owner_uuid}',
+        config: {
+            description: 'Get virtual machines from VmApi by owner_uuid',
+            tags: ['api', 'vmapi'],
+            notes: ['Fetches and returns virtual machines by owner_uuid from Triton'],
+            cors: true,
+            validate: {
+                params: {
+                    owner_uuid: Joi.string().guid().required()
+                }
+            }
+        },
+        handler: async(request: Request, h: ReplyWithContinue) => {
+            const vmapi: Vmapi = await request.app.getNewVmApi();
+
+            const ownerUuid = request.params.owner_uuid;
+            const virtualMachines = await vmapi.getVirtualMachinesByOwnerUuid(ownerUuid);
+            return {status: 0, message: 'success', data: virtualMachines};
+        }
+    }, {
         method: 'POST',
         path: '/triton/vms',
         config: {

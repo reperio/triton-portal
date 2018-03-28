@@ -34,6 +34,26 @@ export class Vmapi {
         }
     }
 
+    async getVirtualMachinesByOwnerUuid(ownerId: string) {
+        this._logger.info(`Fetching virtual machine from VmApi with owner_uuid: "${ownerId}"`);
+        const options: request.OptionsWithUri = {
+            uri: `${this._baseUrl}?query=(owner_uuid=${ownerId})`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
+        try {
+            const virtualMachines = JSON.parse(await request(options));
+            return virtualMachines;
+        } catch (err) {
+            this._logger.error('Failed to fetch virtual machines from VmApi with owner');
+            this._logger.error(err);
+            throw err;
+        }
+    }
+
     async getVirtualMachineByUuid(uuid: string) {
         this._logger.info(`Fetching virtual machine from VmApi with uuid: "${uuid}"`);
         const options: request.OptionsWithUri = {

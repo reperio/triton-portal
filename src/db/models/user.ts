@@ -29,7 +29,8 @@ export class User extends BaseModel {
                 lastName: {type: 'string'},
                 createdAt: {type: 'string'},
                 updatedAt: {type: 'string'},
-                email: {type: 'string'}
+                email: {type: 'string'},
+                ownerUuid: {type: 'string'}
             }
         };
     }
