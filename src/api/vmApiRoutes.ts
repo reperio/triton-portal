@@ -73,6 +73,7 @@ const routes: RouteConfiguration[] =  [
                 payload: {
                     virtualMachine: {
                         owner_uuid: Joi.string().guid().required(),
+                        alias: Joi.string().required(),
                         networks: Joi.array().items(Joi.string().guid()),
                         brand: Joi.string().required(),
                         billing_id: Joi.string().guid().required(),
