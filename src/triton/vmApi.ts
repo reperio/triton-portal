@@ -37,7 +37,7 @@ export class Vmapi {
     async getVirtualMachinesByOwnerUuid(ownerId: string) {
         this._logger.info(`Fetching virtual machine from VmApi with owner_uuid: "${ownerId}"`);
         const options: request.OptionsWithUri = {
-            uri: `${this._baseUrl}?query=(owner_uuid=${ownerId})`,
+            uri: `${this._baseUrl}?query=(%26(owner_uuid=${ownerId})(%21(state=destroyed)))`,
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'
@@ -83,7 +83,7 @@ export class Vmapi {
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: virtualMachine
+            body: JSON.stringify(virtualMachine)
         };
 
         try {
@@ -107,12 +107,12 @@ export class Vmapi {
 
         this._logger.info(`Starting virtual machine: ${vmId}`);
         const options: request.OptionsWithUri = {
-            uri: `${this._baseUrl}/${vmId}?action=start`,
+            uri: `${this._baseUrl}/${vmId}?action=start&sync=true`,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: payload
+            body: JSON.stringify(payload)
         };
 
         try {
@@ -134,12 +134,12 @@ export class Vmapi {
 
         this._logger.info(`Stopping virtual machine: ${vmId}`);
         const options: request.OptionsWithUri = {
-            uri: `${this._baseUrl}/${vmId}?action=stop`,
+            uri: `${this._baseUrl}/${vmId}?action=stop&sync=true`,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: payload
+            body: JSON.stringify(payload)
         };
 
         try {
@@ -161,12 +161,12 @@ export class Vmapi {
 
         this._logger.info(`Rebooting virtual machine: ${vmId}`);
         const options: request.OptionsWithUri = {
-            uri: `${this._baseUrl}/${vmId}?action=reboot`,
+            uri: `${this._baseUrl}/${vmId}?action=reboot&sync=true`,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: payload
+            body: JSON.stringify(payload)
         };
 
         try {
@@ -189,12 +189,12 @@ export class Vmapi {
 
         this._logger.info(`Adding virtual machine: ${vmId} to network: ${networkId}`);
         const options: request.OptionsWithUri = {
-            uri: `${this._baseUrl}/${vmId}?action=add_nics`,
+            uri: `${this._baseUrl}/${vmId}?action=add_nics&sync=true`,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: payload
+            body: JSON.stringify(payload)
         };
 
         try {
@@ -217,12 +217,12 @@ export class Vmapi {
 
         this._logger.info(`Removing NIC: ${macId} from virtual machine: ${vmId}`);
         const options: request.OptionsWithUri = {
-            uri: `${this._baseUrl}/${vmId}?action=add_nics`,
+            uri: `${this._baseUrl}/${vmId}?action=add_nics&sync=true`,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: payload
+            body: JSON.stringify(payload)
         };
 
         try {
@@ -243,12 +243,12 @@ export class Vmapi {
 
         this._logger.info(`Deleting virtual machine: ${vmId}`);
         const options: request.OptionsWithUri = {
-            uri: `${this._baseUrl}/${vmId}?owner_uuid=${ownerId}`,
+            uri: `${this._baseUrl}/${vmId}?owner_uuid=${ownerId}&sync=true`,
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: payload
+            body: JSON.stringify(payload)
         };
 
         try {
