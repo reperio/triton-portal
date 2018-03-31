@@ -75,8 +75,8 @@ export class Vmapi {
     }
 
     async createVirtualMachine(virtualMachine: any) {
-
         this._logger.info(`Creating new virtual machine: ${JSON.stringify(virtualMachine)}`);
+
         const options: request.OptionsWithUri = {
             uri: this._baseUrl,
             method: 'POST',

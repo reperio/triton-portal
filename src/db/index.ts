@@ -3,6 +3,7 @@ import {Model} from 'objection';
 import {LoggerInstance} from 'winston';
 
 import {UsersRepository} from './repositories/usersRepository';
+import {SshKeyRepository} from './repositories/sshKeyRepository';
 
 const KnexConfig = require('./knexfile');
 
@@ -11,6 +12,7 @@ export class UnitOfWork {
     public _logger: LoggerInstance;
     public _transaction: Knex.Transaction;
 
+    private _sshKeyRepository: SshKeyRepository;
     private _usersRepository: UsersRepository;
 
     constructor(logger: LoggerInstance) {
@@ -60,6 +62,10 @@ export class UnitOfWork {
     }
 
     // repositories
+    get sshKeyRepository(): SshKeyRepository {
+        return this._sshKeyRepository = this._sshKeyRepository || new SshKeyRepository(this);
+    }
+    
     get usersRepository(): UsersRepository {
         return this._usersRepository = this._usersRepository || new UsersRepository(this);
     }

@@ -1,6 +1,7 @@
-import {v4} from 'uuid';
+import {Model} from 'objection';
 
 import {BaseModel} from './baseModel';
+import {SshKey} from './sshKey';
 
 export class User extends BaseModel {
     public id: string; 
@@ -31,6 +32,19 @@ export class User extends BaseModel {
                 updatedAt: {type: 'string'},
                 email: {type: 'string'},
                 ownerUuid: {type: 'string'}
+            }
+        };
+    }
+
+    static get relationMappings() {
+        return {
+            sshKeys: {
+                relation: Model.HasManyRelation,
+                modelClass: SshKey,
+                join: {
+                    from: 'users.id',
+                    to: 'sshKeys.userId'
+                }
             }
         };
     }

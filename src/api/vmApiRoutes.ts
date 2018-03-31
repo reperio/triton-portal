@@ -1,7 +1,9 @@
+import * as _ from 'lodash';
 import * as Joi from 'joi';
 import {Request, ReplyWithContinue, RouteConfiguration} from 'hapi';
 
 import {Vmapi} from '../triton/vmapi';
+import { UnitOfWork } from '../db';
 
 const routes: RouteConfiguration[] =  [
     {
@@ -83,9 +85,18 @@ const routes: RouteConfiguration[] =  [
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
+            const uow: UnitOfWork = await request.app.getNewUoW();
             const vmapi: Vmapi = await request.app.getNewVmApi();
 
             const virtualMachine = request.payload.virtualMachine;
+
+            // add ssh keys to virtual machine
+            const user = await uow.usersRepository.getUserByOwnerId(virtualMachine.owner_uuid);
+            const userSshKeys = await uow.sshKeyRepository.getAllSshKeysByUserId(user.id);
+            const keys = _.map(userSshKeys, 'key');
+            virtualMachine.customer_metadata = {
+                root_authorized_keys: keys.join('\n')
+            };
 
             const result = await vmapi.createVirtualMachine(virtualMachine);
             return {status: 0, message: 'success', data: result};

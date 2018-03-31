@@ -67,6 +67,22 @@ export class UsersRepository {
         return null;
     }
 
+    async getUserByOwnerId(ownerId: string) {
+        this.uow._logger.info(`Fetching user with ownerUuid: ${ownerId}`);
+
+        const q = User.query(this.uow._transaction)
+            .where('ownerUuid', ownerId);
+
+        const users = await q;
+        if (users.length > 1) {
+            throw new Error('Too many results');
+        }
+        else if (users.length == 1) {
+            return users[0];
+        }
+        return null;
+    }
+
     //TODO create type for user
     async createUser(user: any) {
         this.uow._logger.info(`Creating new user: ${JSON.stringify(user)}`);
@@ -139,6 +155,8 @@ export class UsersRepository {
         this.uow._logger.info(`Deleting user with id: ${userId}`);
 
         try {
+            await this.uow.sshKeyRepository.deleteSshKeysByUserId(userId);
+
             const q = User.query(this.uow._transaction)
                 .where('id', userId)
                 .delete();
