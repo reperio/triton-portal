@@ -1,6 +1,6 @@
 import * as Joi from 'joi';
 import {Request, ReplyWithContinue, RouteConfiguration} from 'hapi';
-
+import * as bcrypt from 'bcryptjs';
 import {UnitOfWork} from '../db';
 
 const routes: RouteConfiguration[] =  [
@@ -38,7 +38,9 @@ const routes: RouteConfiguration[] =  [
             const uow: UnitOfWork = await request.app.getNewUoW();
 
             const userId = request.params.id;
-            const user = await uow.usersRepository.getUserById(userId);
+            const sshKeys = await uow.sshKeyRepository.getAllSshKeysByUserId(userId);
+            let user = await uow.usersRepository.getUserById(userId)
+            user.password = null;
             return {status: 0, message: 'success', data: user};
         }
     }, {
@@ -82,10 +84,19 @@ const routes: RouteConfiguration[] =  [
                 },
                 payload: {
                     user: {
+                        email: Joi.string().required(),
+                        currentPassword: Joi.string().required(),
                         username: Joi.string().required(),
-                        password: Joi.string().optional(), //optional because we won't update the password in this method
+                        newPassword: Joi.string().optional(),
                         firstName: Joi.string().required(),
-                        lastName: Joi.string().required()
+                        lastName: Joi.string().required(),
+                        sshKeys: Joi.array().items(
+                            Joi.object(
+                                {
+                                    key: Joi.string(),
+                                    description: Joi.string()
+                                }
+                            ).optional())
                     }
                 }   
             }
@@ -94,9 +105,22 @@ const routes: RouteConfiguration[] =  [
             const uow: UnitOfWork = await request.app.getNewUoW();
 
             const userId = request.params.id;
-            const user = request.payload.user;
-            const result = await uow.usersRepository.updateUser(userId, user);
-            return {status: 0, message: 'success', data: result};
+            const newUser = request.payload.user;
+            const user = await uow.usersRepository.getUserById(userId);
+
+            if (newUser.newPassword !== undefined) {
+                if (user === null || !await bcrypt.compareSync(newUser.currentPassword, user.password)) {
+                    return h.response('unauthorized').code(401);
+                }
+                await uow.usersRepository.changePassword(userId, newUser.newPassword);
+            }
+
+            await uow.sshKeyRepository.deleteSshKeysByUserId(userId);
+            await uow.sshKeyRepository.createSshKeys(userId, newUser.sshKeys);
+
+            const updatedUser = await uow.usersRepository.updateUser(userId, newUser);
+
+            return {status: 0, message: 'success', data: updatedUser};
         }
     }, {
         method: 'PUT',

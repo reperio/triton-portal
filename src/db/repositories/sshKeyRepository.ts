@@ -39,6 +39,31 @@ export class SshKeyRepository {
         }
     }
 
+    async createSshKeys(userId: string, sshKeys: any[]) {
+        this.uow._logger.info(`Updating ssh keys for user: ${userId}`);
+        let sshKeysModel:any[] = [];
+        sshKeys.map(sshKey => {
+            const sshKeyModel = SshKey.fromJson({
+                key: sshKey.key,
+                userId: userId,
+                description: sshKey.description
+            });
+            sshKeysModel.push(sshKeyModel);
+        });
+
+        try {
+            const q = SshKey.query(this.uow._transaction)
+                .where('id', userId)
+                .insertGraph(sshKeysModel);
+
+            const updatedSshKeys = await q;
+            return updatedSshKeys;
+        } catch (err) {
+            this.uow._logger.error(err);
+            throw err;
+        }
+    }
+
     public async deleteSshKeyById(id: string) {
         this.uow._logger.info(`Deleting ssh key: ${id}`);
 

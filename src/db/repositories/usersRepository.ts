@@ -23,7 +23,8 @@ export class UsersRepository {
         this.uow._logger.info(`Fetching user with id: ${id}`);
 
         const q = User.query(this.uow._transaction)
-            .where('id', id);
+            .where('id', id)
+            .mergeEager('sshKeys');
 
         const users = await q;
         if (users.length > 1) {
@@ -116,7 +117,7 @@ export class UsersRepository {
                 username: user.username,
                 firstName: user.firstName,
                 lastName: user.lastName,
-				email: user.email
+                email: user.email
             });
 
             const q = User.query(this.uow._transaction)

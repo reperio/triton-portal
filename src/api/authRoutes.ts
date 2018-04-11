@@ -21,7 +21,6 @@ const routes: RouteConfiguration[] =  [
         },
         handler: async (request: Request, h: ReplyWithContinue) => {
             const uow: UnitOfWork = await request.app.getNewUoW();
-            //this.uow._logger.info(`Attempting to login user with email: ${request.payload.email}`);
 
             const user = await uow.usersRepository.getUserByEmail(request.payload.email);
 
