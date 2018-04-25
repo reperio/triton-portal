@@ -68,11 +68,11 @@ export class UsersRepository {
         return null;
     }
 
-    async getUserByOwnerId(ownerId: string) {
-        this.uow._logger.info(`Fetching user with ownerUuid: ${ownerId}`);
+    async getUserByOwnerUuid(ownerUuid: string) {
+        this.uow._logger.info(`Fetching user with ownerUuid: ${ownerUuid}`);
 
         const q = User.query(this.uow._transaction)
-            .where('ownerUuid', ownerId);
+            .where('ownerUuid', ownerUuid);
 
         const users = await q;
         if (users.length > 1) {
@@ -94,7 +94,8 @@ export class UsersRepository {
                 password: await bcrypt.hash(user.password, 12),
                 firstName: user.firstName,
                 lastName: user.lastName,
-				email: user.email
+                email: user.email,
+                ownerUuid: user.ownerUuid
             });
 
             const q = User.query(this.uow._transaction)

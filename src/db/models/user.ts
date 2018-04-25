@@ -2,6 +2,7 @@ import {Model} from 'objection';
 
 import {BaseModel} from './baseModel';
 import {SshKey} from './sshKey';
+import { VlanId } from './vlanId';
 
 export class User extends BaseModel {
     public id: string; 
@@ -45,7 +46,15 @@ export class User extends BaseModel {
                     from: 'users.id',
                     to: 'sshKeys.userId'
                 }
-            }
+            },
+            vlanIds: {
+                relation: Model.HasManyRelation,
+                modelClass: VlanId,
+                join: {
+                    from: 'users.id',
+                    to: 'vlanIds.userId'
+                }
+            },
         };
     }
 }

@@ -91,7 +91,7 @@ const routes: RouteConfiguration[] =  [
             const virtualMachine = request.payload.virtualMachine;
 
             // add ssh keys to virtual machine
-            const user = await uow.usersRepository.getUserByOwnerId(virtualMachine.owner_uuid);
+            const user = await uow.usersRepository.getUserByOwnerUuid(virtualMachine.owner_uuid);
             const userSshKeys = await uow.sshKeyRepository.getAllSshKeysByUserId(user.id);
             const keys = _.map(userSshKeys, 'key');
             virtualMachine.customer_metadata = {

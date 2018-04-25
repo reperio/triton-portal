@@ -4,6 +4,7 @@ import {LoggerInstance} from 'winston';
 
 import {UsersRepository} from './repositories/usersRepository';
 import {SshKeyRepository} from './repositories/sshKeyRepository';
+import { VlanIdsRepository } from './repositories/vlanIdsRepository';
 
 const KnexConfig = require('./knexfile');
 
@@ -14,6 +15,7 @@ export class UnitOfWork {
 
     private _sshKeyRepository: SshKeyRepository;
     private _usersRepository: UsersRepository;
+    private _vlanIdsRepository: VlanIdsRepository;
 
     constructor(logger: LoggerInstance) {
         this._logger = logger;
@@ -68,5 +70,9 @@ export class UnitOfWork {
     
     get usersRepository(): UsersRepository {
         return this._usersRepository = this._usersRepository || new UsersRepository(this);
+    }
+
+    get vlanIdsRepository(): VlanIdsRepository {
+        return this._vlanIdsRepository = this._vlanIdsRepository || new VlanIdsRepository(this);
     }
 }

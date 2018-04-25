@@ -40,6 +40,7 @@ const routes: RouteConfiguration[] =  [
             const userId = request.params.id;
             const sshKeys = await uow.sshKeyRepository.getAllSshKeysByUserId(userId);
             let user = await uow.usersRepository.getUserById(userId)
+            uow._logger.info(JSON.stringify(user));
             user.password = null;
             return {status: 0, message: 'success', data: user};
         }
@@ -58,7 +59,8 @@ const routes: RouteConfiguration[] =  [
                         password: Joi.string().required(),
                         firstName: Joi.string().required(),
                         lastName: Joi.string().required(),
-						email: Joi.string().required()
+                        email: Joi.string().required(),
+                        ownerUuid: Joi.string().guid().required()
                     }
                 }   
             }
@@ -90,6 +92,7 @@ const routes: RouteConfiguration[] =  [
                         newPassword: Joi.string().optional(),
                         firstName: Joi.string().required(),
                         lastName: Joi.string().required(),
+                        ownerUuid: Joi.string().guid().required(),
                         sshKeys: Joi.array().items(
                             Joi.object(
                                 {
