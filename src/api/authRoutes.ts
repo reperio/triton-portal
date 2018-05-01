@@ -1,6 +1,8 @@
 import * as Joi from 'joi';
 import {Request, ReplyWithContinue, RouteConfiguration} from 'hapi';
 import * as bcrypt from 'bcryptjs';
+const jwt = require("jsonwebtoken");
+const Config = require('../config');
 
 import {UnitOfWork} from '../db';
 
@@ -20,6 +22,7 @@ const routes: RouteConfiguration[] =  [
             },
         },
         handler: async (request: Request, h: ReplyWithContinue) => {
+            const config = new Config.default();
             const uow: UnitOfWork = await request.app.getNewUoW();
 
             const user = await uow.usersRepository.getUserByEmail(request.payload.email);
@@ -28,8 +31,18 @@ const routes: RouteConfiguration[] =  [
                 return h.response('unauthorized').code(401);
             }
 
-            request.app.currentUserId = user.id;
-            return h.continue;
+            const tokenPayload = {
+                currentUserId: user.id
+            };
+        
+            const token = jwt.sign(tokenPayload, config.default.jsonSecret, {
+                expiresIn: config.default.jwtValidTimespan / 60
+            });
+            
+            const response = h.response({status: 0, message: 'success', data: null});
+            response.header('Authorization', `Bearer ${token}`);
+            response.header('Access-Control-Expose-Headers', 'Authorization');
+            return response;
         }
     }
 ];

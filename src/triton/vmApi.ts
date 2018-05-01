@@ -260,4 +260,30 @@ export class Vmapi {
             throw err;
         }
     }
+
+    async updateVirtualMachine(billingId: string, vmId: string) {
+        const payload = {
+            billing_id: billingId,
+            force: false
+        };
+
+        this._logger.info(`Updating virtual machine: ${vmId}`);
+        const options: request.OptionsWithUri = {
+            uri: `${this._baseUrl}/${vmId}?action=update&sync=true`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        };
+
+        try {
+            const result = JSON.parse(await request(options));
+            return result;
+        } catch (err) {
+            this._logger.error('Failed to edit vm');
+            this._logger.error(err);
+            throw err;
+        }
+    }
 }

@@ -40,7 +40,6 @@ const routes: RouteConfiguration[] =  [
             const userId = request.params.id;
             const sshKeys = await uow.sshKeyRepository.getAllSshKeysByUserId(userId);
             let user = await uow.usersRepository.getUserById(userId)
-            uow._logger.info(JSON.stringify(user));
             user.password = null;
             return {status: 0, message: 'success', data: user};
         }

@@ -9,10 +9,16 @@ import {Papi} from './triton/papi';
 import {Napi} from './triton/napi';
 const jwt = require("jsonwebtoken");
 
+const validateFunc = async function (decoded: any, request: Request) {
+    // put the current user id on the request so we can use it for permission checking
+    request.app.currentUserId = decoded.currentUserId;
+    return { isValid: true };
+};
+
 
 const start = async function() {
     const config = new Config.default();
-    const server = new Server({statusMonitor: false});
+    const server = new Server({statusMonitor: false, authEnabled: true, authSecret: config.default.jsonSecret, authValidateFunc: validateFunc, corsOrigins: ['*']});
 
     // register swagger and it's required plugins
     await server.registerAdditionalPlugin(require('inert'));
@@ -90,32 +96,6 @@ const start = async function() {
 
                 return h.continue;
             }
-    });
-
-    await server.registerExtension({
-        type: "onPreResponse",
-        method: async (request: Request, h: ReplyWithContinue) => {
-            const response = request.response;
-
-            request.server.app.traceLogger.info({
-                id: request.id,
-                path: request.route.path,
-                method: request.route.method,
-                fingerprint: request.route.fingerprint,
-                code: response.statusCode
-            });
-
-            if (request.app.currentUserId != null && request.response.header != null) {
-                const tokenPayload = {
-                    currentUserId: request.app.currentUserId
-                };
-
-                const token = jwt.sign(tokenPayload, config.default.jsonSecret, {expiresIn: config.default.jwtValidTimespan});
-                request.response.header("Authorization", `Bearer ${token}`);
-            }
-
-            return h.continue;
-        }
     });
 
     await server.startServer();

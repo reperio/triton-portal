@@ -266,6 +266,32 @@ const routes: RouteConfiguration[] =  [
             const result = await vmapi.deleteVirtualMachine(owner_id, vmId);
             return {status: 0, message: 'success', data: result};
         }
+    }, {
+        method: 'PUT',
+        path: '/triton/vms/{id}/update',
+        config: {
+            description: 'Update a virtual machine',
+            tags: ['api', 'vmapi'],
+            notes: ['Update a virtual machine'],
+            cors: true,
+            validate: {
+                params: {
+                    id: Joi.string().guid().required()
+                },
+                query: {
+                    billing_id: Joi.string().guid().required()
+                }
+            }
+        },
+        handler: async(request: Request, h: ReplyWithContinue) => {
+            const vmapi: Vmapi = await request.app.getNewVmApi();
+
+            const billing_id = request.query.billing_id;
+            const vmId = request.params.id;
+
+            const result = await vmapi.updateVirtualMachine(billing_id, vmId);
+            return {status: 0, message: 'success', data: result};
+        }
     }
 ];
 
