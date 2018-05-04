@@ -36,7 +36,7 @@ const routes: RouteConfiguration[] =  [
             };
         
             const token = jwt.sign(tokenPayload, config.default.jsonSecret, {
-                expiresIn: config.default.jwtValidTimespan / 60
+                expiresIn: config.default.jwtValidTimespan
             });
             
             const response = h.response({status: 0, message: 'success', data: null});

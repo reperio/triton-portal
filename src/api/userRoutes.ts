@@ -13,7 +13,6 @@ const routes: RouteConfiguration[] =  [
             notes: ['Fetches and returns all users from the database'],
             cors: true
         },
-        //TODO request should use type 'Request' but fails on getNewUoW()
         handler: async(request: Request, h: ReplyWithContinue) => {
             const uow: UnitOfWork = await request.app.getNewUoW();
 
@@ -51,6 +50,7 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'users'],
             notes: ['Creates a user from the object sent in the body of the request'],
             cors: true,
+            auth: false,
             validate: {
                 payload: {
                     user: {

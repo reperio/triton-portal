@@ -1,6 +1,6 @@
 export default {
     jsonSecret: '496d7e4d-eb86-4706-843b-5ede72fad0e8',
-    jwtValidTimespan: 3600,
+    jwtValidTimespan: '1h',
     db: {
         user: 'reperio',
         password: 'reperio',

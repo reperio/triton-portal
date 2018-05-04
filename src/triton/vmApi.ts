@@ -261,13 +261,13 @@ export class Vmapi {
         }
     }
 
-    async updateVirtualMachine(billingId: string, vmId: string) {
+    async updateVirtualMachine(billing_id: string, vmId: string, alias: string) {
         const payload = {
-            billing_id: billingId,
-            force: false
+            billing_id,
+            alias
         };
 
-        this._logger.info(`Updating virtual machine: ${vmId}`);
+        this._logger.info(`Updating virtual machine: ${vmId} with ${JSON.stringify(payload)}`);
         const options: request.OptionsWithUri = {
             uri: `${this._baseUrl}/${vmId}?action=update&sync=true`,
             method: 'POST',
@@ -285,5 +285,30 @@ export class Vmapi {
             this._logger.error(err);
             throw err;
         }
+    }
+
+    async reprovisionVirtualMachine(vmId: string, image_uuid: string) {
+        const payload = {
+            image_uuid: image_uuid
+        };
+
+        this._logger.info(`Reprovisioning virtual machine: ${vmId} with ${JSON.stringify(image_uuid)}`);
+        const options: request.OptionsWithUri = {
+            uri: `${this._baseUrl}/${vmId}?action=reprovision&sync=true`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        };
+
+        try {
+            const result = JSON.parse(await request(options));
+            return result;
+        } catch (err) {
+            this._logger.error('Failed to edit vm');
+            this._logger.error(err);
+            throw err;
+        } 
     }
 }

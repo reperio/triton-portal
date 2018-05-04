@@ -25,9 +25,9 @@ const routes: RouteConfiguration[] =  [
         method: 'GET',
         path: '/triton/vms/{uuid}',
         config: {
-            description: 'Get all virtual machines from VmApi',
+            description: 'Get a virtual machine from VmApi',
             tags: ['api', 'vmapi'],
-            notes: ['Fetches and returns all virtual machines from Triton'],
+            notes: ['Fetches and returns a virtual machine from Triton'],
             cors: true,
             validate: {
                 params: {
@@ -278,18 +278,32 @@ const routes: RouteConfiguration[] =  [
                 params: {
                     id: Joi.string().guid().required()
                 },
-                query: {
-                    billing_id: Joi.string().guid().required()
+                payload: {
+                    virtualMachine: {
+                        billing_id: Joi.string().guid().required(),
+                        alias: Joi.string().required(),
+                        image_uuid: Joi.string().guid().required()
+                    }
                 }
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
             const vmapi: Vmapi = await request.app.getNewVmApi();
 
-            const billing_id = request.query.billing_id;
-            const vmId = request.params.id;
+            const virtualMachine = request.payload.virtualMachine;
 
-            const result = await vmapi.updateVirtualMachine(billing_id, vmId);
+            const billing_id = virtualMachine.billing_id;
+            const virtualMachineUuid = request.params.id;
+            const alias = virtualMachine.alias;
+            const image_uuid = virtualMachine.image_uuid;
+
+            const vm = await vmapi.getVirtualMachineByUuid(virtualMachineUuid);
+
+            if (vm.image_uuid !== image_uuid) {
+                await vmapi.reprovisionVirtualMachine(virtualMachineUuid, image_uuid);
+            }
+
+            const result = await vmapi.updateVirtualMachine(billing_id, virtualMachineUuid, alias);
             return {status: 0, message: 'success', data: result};
         }
     }
