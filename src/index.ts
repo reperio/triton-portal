@@ -7,6 +7,7 @@ import {UnitOfWork} from './db';
 import {Vmapi} from './triton/vmApi';
 import {Papi} from './triton/papi';
 import {Napi} from './triton/napi';
+import {Imgapi} from './triton/imgapi';
 const jwt = require("jsonwebtoken");
 
 const validateFunc = async function (decoded: any, request: Request) {
@@ -97,6 +98,19 @@ const start = async function() {
                 return h.continue;
             }
     });
+
+        // add method to get ImgApi handler off of the request
+        await server.registerExtension({
+            type: 'onRequest',
+                method: async (request: Request, h: ReplyWithContinue) => {
+                    request.app.getNewImgApi = async () => {
+                        const imgapi = new Imgapi(config.default.tritonRoutes.imgapi, server.app.logger);
+                        return imgapi;
+                    };
+    
+                    return h.continue;
+                }
+        });
 
     await server.startServer();
 } 

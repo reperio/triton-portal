@@ -261,13 +261,37 @@ export class Vmapi {
         }
     }
 
-    async updateVirtualMachine(billing_id: string, vmId: string, alias: string) {
+    async renameVirtualMachine(vmId: string, alias: string) {
         const payload = {
-            billing_id,
             alias
         };
 
-        this._logger.info(`Updating virtual machine: ${vmId} with ${JSON.stringify(payload)}`);
+        this._logger.info(`Renaming virtual machine: ${vmId}`);
+        const options: request.OptionsWithUri = {
+            uri: `${this._baseUrl}/${vmId}?action=update&sync=true`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        };
+
+        try {
+            const result = JSON.parse(await request(options));
+            return result;
+        } catch (err) {
+            this._logger.error('Failed to edit vm');
+            this._logger.error(err);
+            throw err;
+        }
+    }
+
+    async resizeVirtualMachine(vmId: string, billing_id: string,) {
+        const payload = {
+            billing_id
+        };
+
+        this._logger.info(`Updating virtual machine sdc package: ${vmId} with ${JSON.stringify(payload)}`);
         const options: request.OptionsWithUri = {
             uri: `${this._baseUrl}/${vmId}?action=update&sync=true`,
             method: 'POST',

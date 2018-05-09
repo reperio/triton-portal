@@ -9,7 +9,7 @@ export default {
     },
     tritonRoutes: {
         fwapi: '10.101.0.25',
-        imgapi: '10.101.0.21',
+        imgapi: '10.102.0.9',
         napi: '10.101.0.10',
         papi: '10.101.0.28',
         ufds: '10.101.0.18',

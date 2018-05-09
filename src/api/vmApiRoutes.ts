@@ -268,7 +268,37 @@ const routes: RouteConfiguration[] =  [
         }
     }, {
         method: 'PUT',
-        path: '/triton/vms/{id}/update',
+        path: '/triton/vms/{id}/reprovision',
+        config: {
+            description: 'Reprovision a virtual machine',
+            tags: ['api', 'vmapi'],
+            notes: ['Reprovision a virtual machine'],
+            cors: true,
+            validate: {
+                params: {
+                    id: Joi.string().guid().required()
+                },
+                payload: {
+                    virtualMachine: {
+                        image_uuid: Joi.string().guid().required()
+                    }
+                }
+            }
+        },
+        handler: async(request: Request, h: ReplyWithContinue) => {
+            const vmapi: Vmapi = await request.app.getNewVmApi();
+
+            const virtualMachine = request.payload.virtualMachine;
+            const virtualMachineUuid = request.params.id;
+            const image_uuid = virtualMachine.image_uuid;
+
+            const result = await vmapi.reprovisionVirtualMachine(virtualMachineUuid, image_uuid);
+
+            return {status: 0, message: 'success', data: result};
+        }
+    }, {
+        method: 'PUT',
+        path: '/triton/vms/{id}/rename',
         config: {
             description: 'Update a virtual machine',
             tags: ['api', 'vmapi'],
@@ -280,9 +310,7 @@ const routes: RouteConfiguration[] =  [
                 },
                 payload: {
                     virtualMachine: {
-                        billing_id: Joi.string().guid().required(),
-                        alias: Joi.string().required(),
-                        image_uuid: Joi.string().guid().required()
+                        alias: Joi.string().required()
                     }
                 }
             }
@@ -291,19 +319,41 @@ const routes: RouteConfiguration[] =  [
             const vmapi: Vmapi = await request.app.getNewVmApi();
 
             const virtualMachine = request.payload.virtualMachine;
-
-            const billing_id = virtualMachine.billing_id;
             const virtualMachineUuid = request.params.id;
             const alias = virtualMachine.alias;
-            const image_uuid = virtualMachine.image_uuid;
 
-            const vm = await vmapi.getVirtualMachineByUuid(virtualMachineUuid);
+            const result = await vmapi.renameVirtualMachine(virtualMachineUuid, alias);
 
-            if (vm.image_uuid !== image_uuid) {
-                await vmapi.reprovisionVirtualMachine(virtualMachineUuid, image_uuid);
+            return {status: 0, message: 'success', data: result};
+        }
+    }, {
+        method: 'PUT',
+        path: '/triton/vms/{id}/resize',
+        config: {
+            description: 'Update a virtual machine',
+            tags: ['api', 'vmapi'],
+            notes: ['Update a virtual machine'],
+            cors: true,
+            validate: {
+                params: {
+                    id: Joi.string().guid().required()
+                },
+                payload: {
+                    virtualMachine: {
+                        billing_id: Joi.string().guid().required()
+                    }
+                }
             }
+        },
+        handler: async(request: Request, h: ReplyWithContinue) => {
+            const vmapi: Vmapi = await request.app.getNewVmApi();
 
-            const result = await vmapi.updateVirtualMachine(billing_id, virtualMachineUuid, alias);
+            const virtualMachine = request.payload.virtualMachine;
+            const virtualMachineUuid = request.params.id;
+            const billing_id = virtualMachine.billing_id;
+
+            const result = await vmapi.resizeVirtualMachine(virtualMachineUuid, billing_id);
+
             return {status: 0, message: 'success', data: result};
         }
     }

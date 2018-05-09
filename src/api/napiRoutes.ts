@@ -51,7 +51,6 @@ const routes: RouteConfiguration[] =  [
             const existingVlanIds: any[] = networks.map((network:any) => network.vlan_id);
 
             existingVlanIds.forEach((vlanId:number) => {
-                uow._logger.info(vlanId.toString());
                 if (!storedVlanIds.includes(vlanId)) {
                     uow.vlanIdsRepository.createVlanId(owner_uuid, vlanId);
                 }
@@ -87,6 +86,10 @@ const routes: RouteConfiguration[] =  [
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
             const napi: Napi = await request.app.getNewNapi();
+
+            Joi.array().items(Joi.object({
+                key: Joi.string().required()
+            })).required().min(0)
 
             const owner_uuid = request.params.owner_uuid;
             const vlan_id = parseInt(request.params.vlan_id);
