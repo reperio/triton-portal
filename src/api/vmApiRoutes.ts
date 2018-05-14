@@ -5,6 +5,8 @@ import {Request, ReplyWithContinue, RouteConfiguration} from 'hapi';
 import {Vmapi} from '../triton/vmapi';
 import { UnitOfWork } from '../db';
 
+import nic from '../models/nicModel';
+
 const routes: RouteConfiguration[] =  [
     {
         method: 'GET',
@@ -76,7 +78,11 @@ const routes: RouteConfiguration[] =  [
                     virtualMachine: {
                         owner_uuid: Joi.string().guid().required(),
                         alias: Joi.string().required(),
-                        networks: Joi.array().items(Joi.string().guid()),
+                        networks: Joi.array().items(Joi.object({
+                            ipv4_uuid: Joi.string().guid(),
+                            primary: Joi.boolean()
+                        })
+                        ).min(1).required(),
                         brand: Joi.string().required(),
                         billing_id: Joi.string().guid().required(),
                         image_uuid: Joi.string().guid()
@@ -98,8 +104,22 @@ const routes: RouteConfiguration[] =  [
                 root_authorized_keys: keys.join('\n')
             };
 
-            const result = await vmapi.createVirtualMachine(virtualMachine);
-            return {status: 0, message: 'success', data: result};
+            let primaryCounter = 0;
+
+            virtualMachine.networks.map((network:nic) => {
+                if (network.primary) {
+                    primaryCounter++;
+                }
+            });
+
+            
+            if (primaryCounter > 1) {
+                //return {status: 500, message: 'Only a single primary nic can be chosen', data: null};
+            }
+            else {
+                const result = await vmapi.createVirtualMachine(virtualMachine);
+                return {status: 0, message: 'success', data: result};
+            }
         }
     }, {
         method: 'PUT',
