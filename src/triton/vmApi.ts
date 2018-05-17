@@ -92,7 +92,9 @@ export class Vmapi {
         } catch (err) {
             this._logger.error('Failed to create vm');
             this._logger.error(err);
-            throw err;
+
+            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+            throw new Error(errorObj.message);
         }
     }
 

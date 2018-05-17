@@ -114,11 +114,19 @@ const routes: RouteConfiguration[] =  [
 
             
             if (primaryCounter > 1) {
-                //return {status: 500, message: 'Only a single primary nic can be chosen', data: null};
+                return h.response({message: 'Only 1 primary NIC can be chosen.', data: null}).code(400);
             }
             else {
-                const result = await vmapi.createVirtualMachine(virtualMachine);
-                return {status: 0, message: 'success', data: result};
+
+                try {
+                    const result = await vmapi.createVirtualMachine(virtualMachine);
+                    return h.response({message: 'Success', data: result}).code(200);
+    
+                } catch (err) {
+                    if (err.message === "Invalid VM parameters") {
+                        return h.response({message: err.message, data: null}).code(400);
+                    }
+                }
             }
         }
     }, {

@@ -183,11 +183,15 @@ const routes: RouteConfiguration[] =  [
             const vlan_id = parseInt(request.params.vlan_id);
             const network_uuid = request.params.network_uuid;
 
-            await uow.vlanIdsRepository.deleteVlanId(owner_uuid, vlan_id);
-            const result = await napi.deleteFabricNetwork(owner_uuid, vlan_id, network_uuid);
-            await napi.deleteFabricVlan(owner_uuid, vlan_id);
-            
-            return {status: 0, message: 'success', data: result};
+            try {
+                const result = await napi.deleteFabricNetwork(owner_uuid, vlan_id, network_uuid);
+                return h.response({message: 'Success', data: result}).code(200);
+
+            } catch (err) {
+                if (err.message === "network must have no NICs provisioned") {
+                    return h.response({message: 'This network is being used and cannot be deleted.', data: null}).code(400);
+                }
+            }
         }
     }
 ];

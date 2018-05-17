@@ -23,7 +23,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "hapi-swagger": "^9.0.2",
-    "hapijs-starter": "^3.3.0",
+    "hapijs-starter": "^3.5.0",
     "inert": "^5.1.0",
     "joi": "^13.1.2",
     "knex": "^0.14.2",

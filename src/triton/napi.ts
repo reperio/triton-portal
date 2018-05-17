@@ -148,8 +148,12 @@ export class Napi {
             return "success";
         } catch (err) {
             this._logger.error('Failed to delete fabric network');
-            this._logger.error(err);
-            throw err;
+            this._logger.error(err.message);
+
+            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+
+            //this._logger.info(`fabric network json: ${JSON.stringify(errorObj)}`);
+            throw new Error(errorObj.message);
         }
     }
 }

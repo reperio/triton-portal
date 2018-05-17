@@ -11,17 +11,14 @@ import {Imgapi} from './triton/imgapi';
 const jwt = require("jsonwebtoken");
 
 const validateFunc = async function (decoded: any, request: Request) {
-    // put the current user id on the request so we can use it for permission checking
-    request.app.currentUserId = decoded.currentUserId;
     return { isValid: true };
 };
 
-
 const start = async function() {
     const config = new Config.default();
-    const server = new Server({statusMonitor: false, authEnabled: true, authSecret: config.default.jsonSecret, authValidateFunc: validateFunc, corsOrigins: ['*']});
+    const server = new Server({statusMonitor: false, authEnabled: true, authSecret: config.default.jsonSecret , authValidateFunc: validateFunc, corsOrigins: ['*']});
 
-    // register swagger and it's required plugins
+    // register swagger and its required plugins
     await server.registerAdditionalPlugin(require('inert'));
     await server.registerAdditionalPlugin(require('vision'));
     const swaggerPluginPackage = {
@@ -110,6 +107,41 @@ const start = async function() {
     
                     return h.continue;
                 }
+        });
+
+        await server.registerExtension({
+            type: "onPostAuth",
+            method: async (request: Request, h: ReplyWithContinue) => {
+                if (request.auth.isAuthenticated) {
+                    request.app.currentUserId = request.auth.credentials.currentUserId;
+                }
+    
+                return h.continue;
+            }
+        });
+
+        await server.registerExtension({
+            type: "onPreResponse",
+            method: async (request: Request, h: ReplyWithContinue) => {
+    
+                if (request.app.currentUserId != null && request.response.header != null) {
+
+                    const tokenPayload = {
+                        currentUserId: request.app.currentUserId
+                    };
+                
+                    const token = jwt.sign(tokenPayload, config.default.jsonSecret, {
+                        expiresIn: config.default.jwtValidTimespan
+                    });
+
+                    request.response.header('Access-Control-Expose-Headers', 'Authorization');
+                    request.response.header("Authorization", `Bearer ${token}`);
+
+                    console.log('sending auth token');
+                }
+    
+                return h.continue;
+            }
         });
 
     await server.startServer();

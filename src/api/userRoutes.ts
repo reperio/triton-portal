@@ -91,7 +91,6 @@ const routes: RouteConfiguration[] =  [
                         newPassword: Joi.string().optional(),
                         firstName: Joi.string().required(),
                         lastName: Joi.string().required(),
-                        ownerUuid: Joi.string().guid().required(),
                         sshKeys: Joi.array().items(
                             Joi.object(
                                 {
@@ -110,10 +109,11 @@ const routes: RouteConfiguration[] =  [
             const newUser = request.payload.user;
             const user = await uow.usersRepository.getUserById(userId);
 
+            if (user === null || !await bcrypt.compareSync(newUser.currentPassword, user.password)) {
+                return h.response({message: 'Invalid password', data: null}).code(401);
+            }
+
             if (newUser.newPassword !== undefined) {
-                if (user === null || !await bcrypt.compareSync(newUser.currentPassword, user.password)) {
-                    return h.response('unauthorized').code(401);
-                }
                 await uow.usersRepository.changePassword(userId, newUser.newPassword);
             }
 

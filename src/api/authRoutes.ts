@@ -38,11 +38,21 @@ const routes: RouteConfiguration[] =  [
             const token = jwt.sign(tokenPayload, config.default.jsonSecret, {
                 expiresIn: config.default.jwtValidTimespan
             });
+
+            request.app.currentUserId = user.id;
             
-            const response = h.response({status: 0, message: 'success', data: null});
-            response.header('Authorization', `Bearer ${token}`);
-            response.header('Access-Control-Expose-Headers', 'Authorization');
-            return response;
+            return h.continue;
+        }
+    },
+    {
+        method: 'GET',
+        path: '/auth',
+        config: {
+            description: 'Extend user session',
+            cors: true,
+        },
+        handler: async (request: Request, h: ReplyWithContinue) => {
+            return h.response(true);
         }
     }
 ];
