@@ -104,28 +104,13 @@ const routes: RouteConfiguration[] =  [
                 root_authorized_keys: keys.join('\n')
             };
 
-            let primaryCounter = 0;
+            try {
+                const result = await vmapi.createVirtualMachine(virtualMachine);
+                return h.response({message: 'Success', data: result}).code(200);
 
-            virtualMachine.networks.map((network:nic) => {
-                if (network.primary) {
-                    primaryCounter++;
-                }
-            });
-
-            
-            if (primaryCounter > 1) {
-                return h.response({message: 'Only 1 primary NIC can be chosen.', data: null}).code(400);
-            }
-            else {
-
-                try {
-                    const result = await vmapi.createVirtualMachine(virtualMachine);
-                    return h.response({message: 'Success', data: result}).code(200);
-    
-                } catch (err) {
-                    if (err.message === "Invalid VM parameters") {
-                        return h.response({message: err.message, data: null}).code(400);
-                    }
+            } catch (err) {
+                if (err.message === "Invalid VM parameters") {
+                    return h.response({message: err.message, data: null}).code(400);
                 }
             }
         }
@@ -383,6 +368,92 @@ const routes: RouteConfiguration[] =  [
             const result = await vmapi.resizeVirtualMachine(virtualMachineUuid, billing_id);
 
             return {status: 0, message: 'success', data: result};
+        }
+    }, {
+        method: 'POST',
+        path: '/triton/vms/{id}/nics',
+        config: {
+            description: 'Update a vms NICs',
+            tags: ['api', 'vmapi'],
+            notes: ['Update a vms NICs'],
+            cors: true,
+            validate: {
+                params: {
+                    id: Joi.string().guid().required()
+                },
+                payload: {
+                    nics: Joi.array().items(
+                        Joi.object({
+                            uuid: Joi.string().guid().required(),
+                            primary: Joi.boolean().required(),
+                            mac: Joi.string().allow('').optional()
+                        })
+                        .optional()
+                    )
+                }
+            }
+        },
+        handler: async(request: Request, h: ReplyWithContinue) => {
+            const vmapi: Vmapi = await request.app.getNewVmApi();
+
+            const nics = request.payload.nics;
+            const virtualMachineUuid = request.params.id;
+            const uow: UnitOfWork = await request.app.getNewUoW();
+
+            const currentNics = (await vmapi.getVirtualMachineByUuid(virtualMachineUuid)).nics;
+
+            uow._logger.warn(JSON.stringify(currentNics));
+
+            let toAdd:any = [];
+            let toDelete:string[] = [];
+            let toUpdate:any = [];     
+            
+            nics.map((newNic: any) => {
+                if (newNic.mac === "") {
+                    uow._logger.warn('add');
+                    toAdd.push({uuid: newNic.uuid, primary: false});
+                }
+             });
+
+            const newNicMacs = nics.map((nic:any) => nic.mac);
+            currentNics.map((currentNic: any) => {
+                console.log(JSON.stringify(currentNic));
+                if (!newNicMacs.includes(currentNic.mac)) {
+                    uow._logger.warn('delete');
+                    toDelete.push(currentNic.mac);
+                    //delete
+                }
+                else {
+                    const similarNic = nics.filter((nic:any) => nic.mac === currentNic.mac)[0];
+                    uow._logger.warn(JSON.stringify(similarNic) + ' | ' + JSON.stringify(currentNic));
+                    if (similarNic.uuid !== currentNic.network_uuid) {
+                        toDelete.push(currentNic.mac);
+                        toAdd.push({uuid: similarNic.uuid, primary: similarNic.primary});
+                    }
+                    else if (similarNic.primary !== (currentNic.primary !== undefined ? currentNic.primary : false)) {
+                        //update
+                        uow._logger.warn('update');
+                        toUpdate.push({mac: similarNic.mac, primary: similarNic.mac});
+                    }
+                }
+            });
+
+            if (toDelete.length > 0) {
+                await vmapi.deleteNics(virtualMachineUuid, toDelete);
+            }
+
+            if (toAdd.length > 0) {
+                await vmapi.addNicsToVirtualMachine(virtualMachineUuid, toAdd);
+            }
+
+            if (toUpdate.length > 0) {
+                await vmapi.updateNics(virtualMachineUuid, toUpdate);
+            }            
+
+            //const result = await vmapi.resizeVirtualMachine(virtualMachineUuid, billing_id);
+
+            //return {status: 0, message: 'success', data: result};
+            return h.continue;
         }
     }
 ];

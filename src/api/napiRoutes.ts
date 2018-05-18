@@ -178,7 +178,6 @@ const routes: RouteConfiguration[] =  [
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
             const napi: Napi = await request.app.getNewNapi();
-            const uow: UnitOfWork = await request.app.getNewUoW();
             const owner_uuid = request.params.owner_uuid;
             const vlan_id = parseInt(request.params.vlan_id);
             const network_uuid = request.params.network_uuid;

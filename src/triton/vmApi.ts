@@ -94,6 +94,7 @@ export class Vmapi {
             this._logger.error(err);
 
             const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+
             throw new Error(errorObj.message);
         }
     }
@@ -333,6 +334,81 @@ export class Vmapi {
             return result;
         } catch (err) {
             this._logger.error('Failed to edit vm');
+            this._logger.error(err);
+            throw err;
+        } 
+    }
+
+    async addNicsToVirtualMachine(vmId: string, networks: any[]) {
+        const payload = {
+            networks
+        };
+
+        this._logger.info(`Adding NICs to virtual machine: ${vmId}`);
+        const options: request.OptionsWithUri = {
+            uri: `${this._baseUrl}/${vmId}?action=add_nics&sync=true`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        };
+
+        try {
+            const result = JSON.parse(await request(options));
+            return result;
+        } catch (err) {
+            this._logger.error('Failed to add NICs');
+            this._logger.error(err);
+            throw err;
+        } 
+    }
+
+    async deleteNics(vmId: string, macs: string[]) {
+        const payload = {
+            macs
+        };
+
+        this._logger.info(`Removing NICs`);
+        const options: request.OptionsWithUri = {
+            uri: `${this._baseUrl}/${vmId}?action=remove_nics&sync=true`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        };
+
+        try {
+            const result = JSON.parse(await request(options));
+            return result;
+        } catch (err) {
+            this._logger.error('Failed to remove NICs');
+            this._logger.error(err);
+            throw err;
+        } 
+    }
+
+    async updateNics(vmId: string, nics: any[]) {
+        const payload = {
+            nics
+        };
+
+        this._logger.info(`Updating NICs`);
+        const options: request.OptionsWithUri = {
+            uri: `${this._baseUrl}/${vmId}?action=update_nics&sync=true`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        };
+
+        try {
+            const result = JSON.parse(await request(options));
+            return result;
+        } catch (err) {
+            this._logger.error('Failed to update NICs');
             this._logger.error(err);
             throw err;
         } 
