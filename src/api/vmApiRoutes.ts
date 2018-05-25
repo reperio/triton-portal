@@ -137,9 +137,14 @@ const routes: RouteConfiguration[] =  [
             const owner_id = request.query.owner_id;
             const vmId = request.params.id;
 
-
-            const result = await vmapi.startVirtualMachine(owner_id, vmId);
-            return {status: 0, message: 'success', data: result};
+            try {
+                const result = await vmapi.startVirtualMachine(owner_id, vmId);
+                return h.response({message: 'Success', data: true}).code(200);
+            } catch (err) {
+                if (err.message === "Cannot start a VM from a 'running' state") {
+                    return h.response({message: "Cannot start a VM that's already running", data: null}).code(400);
+                }
+            }
         }
     }, {
         method: 'PUT',
@@ -164,9 +169,14 @@ const routes: RouteConfiguration[] =  [
             const owner_id = request.query.owner_id;
             const vmId = request.params.id;
 
-
-            const result = await vmapi.stopVirtualMachine(owner_id, vmId);
-            return {status: 0, message: 'success', data: result};
+            try {
+                const result = await vmapi.stopVirtualMachine(owner_id, vmId);
+                return h.response({message: 'Success', data: true}).code(200);
+            } catch (err) {
+                //if (err.message === "Cannot start a VM from a 'running' state") {
+                    return h.response({message: err.message, data: null}).code(400);
+                //}
+            }
         }
     }, {
         method: 'PUT',
@@ -193,64 +203,6 @@ const routes: RouteConfiguration[] =  [
 
 
             const result = await vmapi.rebootVirtualMachine(owner_id, vmId);
-            return {status: 0, message: 'success', data: result};
-        }
-    }, {
-        method: 'PUT',
-        path: '/triton/vms/{id}/addNetwork',
-        config: {
-            description: 'Add a virtual machine to a network',
-            tags: ['api', 'vmapi'],
-            notes: ['Adds a virtual machine with the provided id to the network with the provided network id'],
-            cors: true,
-            validate: {
-                params: {
-                    id: Joi.string().guid().required()
-                },
-                query: {
-                    owner_id: Joi.string().guid().required(),
-                    network_id: Joi.string().guid().required()
-                }
-            }
-        },
-        handler: async(request: Request, h: ReplyWithContinue) => {
-            const vmapi: Vmapi = await request.app.getNewVmApi();
-
-            const owner_id = request.query.owner_id;
-            const network_id = request.query.network_id;
-            const vmId = request.params.id;
-
-
-            const result = await vmapi.addVirtualMachineToNetwork(owner_id, vmId, network_id);
-            return {status: 0, message: 'success', data: result};
-        }
-    }, {
-        method: 'PUT',
-        path: '/triton/vms/{id}/removeNetwork',
-        config: {
-            description: 'Remove a virtual machine from a network',
-            tags: ['api', 'vmapi'],
-            notes: ['Removes a virtual machine with the provided id from the network with the provided network id'],
-            cors: true,
-            validate: {
-                params: {
-                    id: Joi.string().guid().required()
-                },
-                query: {
-                    owner_id: Joi.string().guid().required(),
-                    network_id: Joi.string().guid().required()
-                }
-            }
-        },
-        handler: async(request: Request, h: ReplyWithContinue) => {
-            const vmapi: Vmapi = await request.app.getNewVmApi();
-
-            const owner_id = request.query.owner_id;
-            const network_id = request.query.network_id;
-            const vmId = request.params.id;
-
-
-            const result = await vmapi.removeNicFromVirtualMachine(owner_id, vmId, network_id);
             return {status: 0, message: 'success', data: result};
         }
     }, {
@@ -305,9 +257,12 @@ const routes: RouteConfiguration[] =  [
             const virtualMachineUuid = request.params.id;
             const image_uuid = virtualMachine.image_uuid;
 
-            const result = await vmapi.reprovisionVirtualMachine(virtualMachineUuid, image_uuid);
-
-            return {status: 0, message: 'success', data: result};
+            try {
+                const result = await vmapi.reprovisionVirtualMachine(virtualMachineUuid, image_uuid);
+            } catch (err) {
+                return h.response({message: err.message, data: null}).code(400);
+            }
+            return h.response({message: 'Success', data: true}).code(200);
         }
     }, {
         method: 'PUT',
@@ -335,9 +290,12 @@ const routes: RouteConfiguration[] =  [
             const virtualMachineUuid = request.params.id;
             const alias = virtualMachine.alias;
 
-            const result = await vmapi.renameVirtualMachine(virtualMachineUuid, alias);
-
-            return {status: 0, message: 'success', data: result};
+            try {
+                const result = await vmapi.renameVirtualMachine(virtualMachineUuid, alias);
+            } catch (err) {
+                return h.response({message: err.message, data: null}).code(400);
+            }
+            return h.response({message: 'Success', data: true}).code(200);
         }
     }, {
         method: 'PUT',
@@ -365,9 +323,12 @@ const routes: RouteConfiguration[] =  [
             const virtualMachineUuid = request.params.id;
             const billing_id = virtualMachine.billing_id;
 
-            const result = await vmapi.resizeVirtualMachine(virtualMachineUuid, billing_id);
-
-            return {status: 0, message: 'success', data: result};
+            try {
+                const result = await vmapi.resizeVirtualMachine(virtualMachineUuid, billing_id);
+            } catch (err) {
+                return h.response({message: err.message, data: null}).code(400);
+            }
+            return h.response({message: 'Success', data: true}).code(200);
         }
     }, {
         method: 'POST',
@@ -410,50 +371,48 @@ const routes: RouteConfiguration[] =  [
             
             nics.map((newNic: any) => {
                 if (newNic.mac === "") {
-                    uow._logger.warn('add');
-                    toAdd.push({uuid: newNic.uuid, primary: false});
+                    //add
+                    toAdd.push({uuid: newNic.uuid, primary: newNic.primary});
                 }
              });
 
             const newNicMacs = nics.map((nic:any) => nic.mac);
             currentNics.map((currentNic: any) => {
-                console.log(JSON.stringify(currentNic));
                 if (!newNicMacs.includes(currentNic.mac)) {
-                    uow._logger.warn('delete');
-                    toDelete.push(currentNic.mac);
                     //delete
+                    toDelete.push(currentNic.mac);
                 }
                 else {
                     const similarNic = nics.filter((nic:any) => nic.mac === currentNic.mac)[0];
-                    uow._logger.warn(JSON.stringify(similarNic) + ' | ' + JSON.stringify(currentNic));
                     if (similarNic.uuid !== currentNic.network_uuid) {
+                        //update through deletion and addition
                         toDelete.push(currentNic.mac);
                         toAdd.push({uuid: similarNic.uuid, primary: similarNic.primary});
                     }
                     else if (similarNic.primary !== (currentNic.primary !== undefined ? currentNic.primary : false)) {
                         //update
-                        uow._logger.warn('update');
-                        toUpdate.push({mac: similarNic.mac, primary: similarNic.mac});
+                        toUpdate.push({mac: similarNic.mac, primary: similarNic.primary});
                     }
                 }
             });
 
-            if (toDelete.length > 0) {
-                await vmapi.deleteNics(virtualMachineUuid, toDelete);
+            try {
+                if (toDelete.length > 0) {
+                    await vmapi.deleteNics(virtualMachineUuid, toDelete);
+                }
+    
+                if (toAdd.length > 0) {
+                    await vmapi.addNicsToVirtualMachine(virtualMachineUuid, toAdd);
+                }
+    
+                if (toUpdate.length > 0) {
+                    await vmapi.updateNics(virtualMachineUuid, toUpdate);
+                }
+            } catch (err) {
+                return h.response({message: err.message, data: null}).code(400);
             }
 
-            if (toAdd.length > 0) {
-                await vmapi.addNicsToVirtualMachine(virtualMachineUuid, toAdd);
-            }
-
-            if (toUpdate.length > 0) {
-                await vmapi.updateNics(virtualMachineUuid, toUpdate);
-            }            
-
-            //const result = await vmapi.resizeVirtualMachine(virtualMachineUuid, billing_id);
-
-            //return {status: 0, message: 'success', data: result};
-            return h.continue;
+            return h.response({message: 'Success', data: true}).code(200);
         }
     }
 ];

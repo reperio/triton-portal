@@ -99,8 +99,6 @@ export class Vmapi {
         }
     }
 
-    //TODO update virtual machine
-
     async startVirtualMachine(ownerId: string, vmId: string) {
         const payload = {
             uuid: vmId,
@@ -124,7 +122,9 @@ export class Vmapi {
         } catch (err) {
             this._logger.error('Failed to start vm');
             this._logger.error(err);
-            throw err;
+
+            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+            throw new Error(errorObj.message);
         }
     }
 
@@ -151,7 +151,9 @@ export class Vmapi {
         } catch (err) {
             this._logger.error('Failed to stop vm');
             this._logger.error(err);
-            throw err;
+
+            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+            throw new Error(errorObj.message);
         }
     }
 
@@ -182,62 +184,6 @@ export class Vmapi {
         }
     }
 
-    async addVirtualMachineToNetwork(ownerId: string, vmId: string, networkId: string) {
-        const payload = {
-            uuid: vmId,
-            owner_uuid: ownerId,
-            action: 'add_nics',
-            networks: [networkId]
-        };
-
-        this._logger.info(`Adding virtual machine: ${vmId} to network: ${networkId}`);
-        const options: request.OptionsWithUri = {
-            uri: `${this._baseUrl}/${vmId}?action=add_nics&sync=true`,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        };
-
-        try {
-            const result = JSON.parse(await request(options));
-            return result;
-        } catch (err) {
-            this._logger.error('Failed to add vm to network');
-            this._logger.error(err);
-            throw err;
-        }
-    }
-
-    async removeNicFromVirtualMachine(ownerId: string, vmId: string, macId: string) {
-        const payload = {
-            uuid: vmId,
-            owner_uuid: ownerId,
-            action: 'remove_nics',
-            macs: [macId]
-        };
-
-        this._logger.info(`Removing NIC: ${macId} from virtual machine: ${vmId}`);
-        const options: request.OptionsWithUri = {
-            uri: `${this._baseUrl}/${vmId}?action=add_nics&sync=true`,
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        };
-
-        try {
-            const result = JSON.parse(await request(options));
-            return result;
-        } catch (err) {
-            this._logger.error('Failed to remove NIC from vm');
-            this._logger.error(err);
-            throw err;
-        }
-    }
-
     async deleteVirtualMachine(ownerId: string, vmId: string) {
         const payload = {
             uuid: vmId,
@@ -260,7 +206,9 @@ export class Vmapi {
         } catch (err) {
             this._logger.error('Failed to delete vm');
             this._logger.error(err);
-            throw err;
+
+            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+            throw new Error(errorObj.message);
         }
     }
 
@@ -285,7 +233,9 @@ export class Vmapi {
         } catch (err) {
             this._logger.error('Failed to edit vm');
             this._logger.error(err);
-            throw err;
+           
+            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+            throw new Error(errorObj.message);
         }
     }
 
@@ -310,7 +260,9 @@ export class Vmapi {
         } catch (err) {
             this._logger.error('Failed to edit vm');
             this._logger.error(err);
-            throw err;
+
+            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+            throw new Error(errorObj.message);
         }
     }
 
@@ -335,7 +287,9 @@ export class Vmapi {
         } catch (err) {
             this._logger.error('Failed to edit vm');
             this._logger.error(err);
-            throw err;
+            
+            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+            throw new Error(errorObj.message);
         } 
     }
 
@@ -360,7 +314,9 @@ export class Vmapi {
         } catch (err) {
             this._logger.error('Failed to add NICs');
             this._logger.error(err);
-            throw err;
+
+            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+            throw new Error(errorObj.message);
         } 
     }
 
@@ -385,7 +341,9 @@ export class Vmapi {
         } catch (err) {
             this._logger.error('Failed to remove NICs');
             this._logger.error(err);
-            throw err;
+
+            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+            throw new Error(errorObj.message);
         } 
     }
 
@@ -410,7 +368,9 @@ export class Vmapi {
         } catch (err) {
             this._logger.error('Failed to update NICs');
             this._logger.error(err);
-            throw err;
+            
+            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+            throw new Error(errorObj.message);
         } 
     }
 }

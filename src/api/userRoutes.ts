@@ -37,7 +37,6 @@ const routes: RouteConfiguration[] =  [
             const uow: UnitOfWork = await request.app.getNewUoW();
 
             const userId = request.params.id;
-            const sshKeys = await uow.sshKeyRepository.getAllSshKeysByUserId(userId);
             let user = await uow.usersRepository.getUserById(userId)
             user.password = null;
             return {status: 0, message: 'success', data: user};

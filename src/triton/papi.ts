@@ -34,4 +34,23 @@ export class Papi {
         }
     }
 
+    async getPackageByUuid(uuid: string) {
+        this._logger.info(`Fetching package from papi by uuid: ${uuid}`);
+        const options: request.OptionsWithUri = {
+            uri: `${this._baseUrl}/${uuid}`,
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
+        try {
+            const _package = JSON.parse(await request(options));
+            return _package;
+        } catch (err) {
+            this._logger.error('Failed to fetch package from papi');
+            this._logger.error(err);
+            throw err;
+        }
+    }
 }

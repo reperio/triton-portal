@@ -22,66 +22,78 @@ export class UsersRepository {
     async getUserById(id: string) {
         this.uow._logger.info(`Fetching user with id: ${id}`);
 
-        const q = User.query(this.uow._transaction)
+        try {
+            const q = User.query(this.uow._transaction)
             .where('id', id)
             .mergeEager('sshKeys');
 
-        const users = await q;
-        if (users.length > 1) {
-            throw new Error('Too many results');
+            const users = await q;
+            if (users.length > 1) {
+                throw new Error('Too many results');
+            }
+            else if (users.length == 1) {
+                return users[0];
+            }
+        } catch(err) {
+            throw(err);
         }
-        else if (users.length == 1) {
-            return users[0];
-        }
-        return null;
     }
 
     async getUserByUsername(username: string) {
         this.uow._logger.info(`Fetching user with username: ${username}`);
 
-        const q = User.query(this.uow._transaction)
+        try {
+            const q = User.query(this.uow._transaction)
             .where('username', username);
 
-        const users = await q;
-        if (users.length > 1) {
-            throw new Error('Too many results');
+            const users = await q;
+            if (users.length > 1) {
+                throw new Error('Too many results');
+            }
+            else if (users.length == 1) {
+                return users[0];
+            }
+        } catch(err) {
+            throw(err);
         }
-        else if (users.length == 1) {
-            return users[0];
-        }
-        return null;
     }
 
     async getUserByEmail(email: string) {
         this.uow._logger.info(`Fetching user with email: ${email}`);
 
-        const q = User.query(this.uow._transaction)
-            .where('email', email);
+        try {
+            const q = User.query(this.uow._transaction)
+                .where('email', email);
 
-        const users = await q;
-        if (users.length > 1) {
-            throw new Error('Too many results');
+            const users = await q;
+            if (users.length > 1) {
+                throw new Error('Too many results');
+            }
+            else if (users.length == 1) {
+                return users[0];
+            }
+        } catch(err) {
+            throw(err);
         }
-        else if (users.length == 1) {
-            return users[0];
-        }
-        return null;
     }
 
     async getUserByOwnerUuid(ownerUuid: string) {
         this.uow._logger.info(`Fetching user with ownerUuid: ${ownerUuid}`);
 
-        const q = User.query(this.uow._transaction)
-            .where('ownerUuid', ownerUuid);
+        try {
+            const q = User.query(this.uow._transaction)
+                .where('ownerUuid', ownerUuid);
 
-        const users = await q;
-        if (users.length > 1) {
-            throw new Error('Too many results');
+            const users = await q;
+            if (users.length > 1) {
+                throw new Error('Too many results');
+            }
+            else if (users.length == 1) {
+                return users[0];
+            }
+        } catch(err) {
+            throw(err);
         }
-        else if (users.length == 1) {
-            return users[0];
-        }
-        return null;
     }
 
     //TODO create type for user

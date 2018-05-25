@@ -11,11 +11,16 @@ export class SshKeyRepository {
     public async getAllSshKeysByUserId(userId: string) {
         this.uow._logger.info(`Fetching all ssh keys for user: ${userId}`);
 
-        const q = SshKey.query(this.uow._transaction)
+        try {
+            const q = SshKey.query(this.uow._transaction)
             .where('userId', userId);
         
-        const sshKeys = await q;
-        return sshKeys;
+            const sshKeys = await q;
+            return sshKeys;
+        } catch(err) {
+            this.uow._logger.error(err);
+            throw(err);
+        }
     }
 
     public async createSshKey(sshKey: any) {

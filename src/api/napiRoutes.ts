@@ -5,8 +5,8 @@ import {UnitOfWork} from '../db';
 
 const routes: RouteConfiguration[] =  [
     {
-        method: 'GET',
-        path: '/triton/fabrics/{owner_uuid}/vlans/{vlan_id}/networks',
+        method: 'POST',
+        path: '/triton/fabrics/{owner_uuid}/fabricNetworks',
         config: {
             description: 'Get all fabric networks from napi for specified owner uuid and vlan id',
             tags: ['api', 'napi'],
@@ -14,8 +14,12 @@ const routes: RouteConfiguration[] =  [
             cors: true,
             validate: {
                 params: {
-                    owner_uuid: Joi.string().guid().required(),
-                    vlan_id: Joi.number().required()
+                    owner_uuid: Joi.string().guid().required()
+                },
+                payload: {
+                    vlan_ids: Joi.array().items(
+                        Joi.number()
+                    ).required()
                 }
             }
         },
@@ -23,8 +27,18 @@ const routes: RouteConfiguration[] =  [
             const napi: Napi = await request.app.getNewNapi();
 
             const owner_uuid = request.params.owner_uuid;
-            const vlan_id = parseInt(request.params.vlan_id);
-            const networks = await napi.getFabricNetworks(owner_uuid, vlan_id);
+            const vlan_ids:any = request.payload.vlan_ids;
+
+            let networks:any[] = [];
+            (await Promise.all(
+                vlan_ids.map(async (vlan_id:number): Promise<any> => {
+                    const network = await napi.getFabricNetworks(owner_uuid, vlan_id)
+                    if (network.length === 1) {
+                        networks.push(network[0]);
+                    }
+                })
+            ));
+
             return {status: 0, message: 'success', data: networks};
         }
     },{
