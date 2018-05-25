@@ -17,7 +17,7 @@ export class Papi {
     async getAllPackages() {
         this._logger.info('Fetching packages from papi');
         const options: request.OptionsWithUri = {
-            uri: this._baseUrl,
+            uri: `${this._baseUrl}?active=true`,
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json'

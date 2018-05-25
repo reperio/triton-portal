@@ -24,9 +24,9 @@ const routes: RouteConfiguration[] =  [
         method: 'GET',
         path: '/triton/packages/{uuid}',
         config: {
-            description: 'Get all packages from papi',
+            description: 'Get individual package from papi',
             tags: ['api', 'papi'],
-            notes: ['Fetches and returns all packages from Triton'],
+            notes: ['Fetches and returns a package from Triton'],
             cors: true,
             validate: {
                 params: {
