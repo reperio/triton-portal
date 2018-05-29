@@ -85,7 +85,8 @@ const routes: RouteConfiguration[] =  [
                         ).min(1).required(),
                         brand: Joi.string().required(),
                         billing_id: Joi.string().guid().required(),
-                        image_uuid: Joi.string().guid()
+                        image_uuid: Joi.string().guid().required(),
+                        quota:  Joi.number().required()
                     }
                 }
             }

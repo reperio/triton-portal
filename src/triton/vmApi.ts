@@ -77,13 +77,42 @@ export class Vmapi {
     async createVirtualMachine(virtualMachine: any) {
         this._logger.info(`Creating new virtual machine: ${JSON.stringify(virtualMachine)}`);
 
+        let payload = {};
+        if (virtualMachine.brand === "kvm") {
+            payload = {
+                owner_uuid: virtualMachine.owner_uuid,
+                alias: virtualMachine.alias,
+                networks: virtualMachine.networks,
+                brand: virtualMachine.brand, 
+                billing_id: virtualMachine.billing_id,
+                disks: [
+                    {
+                        image_uuid: virtualMachine.image_uuid
+                    },
+                    {
+                        size: virtualMachine.quota
+                    }
+                ]
+            };
+        }
+        else {
+            payload = {
+                owner_uuid: virtualMachine.owner_uuid,
+                alias: virtualMachine.alias,
+                networks: virtualMachine.networks,
+                brand: virtualMachine.brand, 
+                billing_id: virtualMachine.billing_id,
+                image_uuid: virtualMachine.image_uuid
+            };
+        }
+
         const options: request.OptionsWithUri = {
             uri: this._baseUrl,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(virtualMachine)
+            body: JSON.stringify(payload)
         };
 
         try {
