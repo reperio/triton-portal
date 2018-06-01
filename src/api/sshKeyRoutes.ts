@@ -12,10 +12,14 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'ssh keys'],
             notes: ['Fetches a list of ssh keys tied to the provided user id'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     userId: Joi.string().guid().required()
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async (request: Request, h: ReplyWithContinue) => {
@@ -32,6 +36,7 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'ssh keys'],
             notes: ['Inserts a new ssh key into the database'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     userId: Joi.string().guid().required()
@@ -41,7 +46,10 @@ const routes: RouteConfiguration[] =  [
                         key: Joi.string().required(),
                         description: Joi.string().required()
                     }
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async (request: Request, h: ReplyWithContinue) => {
@@ -61,10 +69,14 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'ssh keys'],
             notes: ['Deletes all of the ssh keys tied to the provided userId'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     userId: Joi.string().guid().required()
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async (request: Request, h: ReplyWithContinue) => {
@@ -81,11 +93,15 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'ssh keys'],
             notes: ['Deletes the ssh key with the provided id'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     userId: Joi.string().guid().required(),
                     id: Joi.string().guid().required()
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async (request: Request, h: ReplyWithContinue) => {

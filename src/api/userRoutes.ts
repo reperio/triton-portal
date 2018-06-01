@@ -11,7 +11,13 @@ const routes: RouteConfiguration[] =  [
             description: 'Get all users',
             tags: ['api', 'users'],
             notes: ['Fetches and returns all users from the database'],
-            cors: true
+            cors: true,
+            auth: 'jwt',
+            validate: {
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
+            }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
             const uow: UnitOfWork = await request.app.getNewUoW();
@@ -27,10 +33,14 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'users'],
             notes: ['Fetches a user by the given id'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     id: Joi.string().guid().required()
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async (request: Request, h: ReplyWithContinue) => {
@@ -65,10 +75,25 @@ const routes: RouteConfiguration[] =  [
         },
         handler: async (request: Request, h: ReplyWithContinue) => {
             const uow: UnitOfWork = await request.app.getNewUoW();
-
             const user = request.payload.user;
+
+            const existingEmail = await uow.usersRepository.getUserByEmail(user.email);
+            if (existingEmail !== undefined) {
+                return h.response({message: 'This email is already in use.', data: null}).code(409);
+            }
+
+            const existingUsername = await uow.usersRepository.getUserByUsername(user.username);
+            if (existingUsername !== undefined) {
+                return h.response({message: 'This username is already in use.', data: null}).code(409);
+            }
+
+            const existingOwnerUuid = await uow.usersRepository.getUserByOwnerUuid(user.ownerUuid);
+            if (existingOwnerUuid !== undefined) {
+                return h.response({message: 'This owner uuid is already in use.', data: null}).code(409);
+            }
+            
             const result = await uow.usersRepository.createUser(user);
-            return {status: 0, message: 'success', data: result};
+            return h.response({status: 0, message: 'success', data: result});
         }
     }, {
         method: 'PUT',
@@ -78,6 +103,7 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'users'],
             notes: ['Update the user with the given id with new values'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     id: Joi.string().guid().required()
@@ -98,7 +124,10 @@ const routes: RouteConfiguration[] =  [
                                 }
                             ).optional())
                     }
-                }   
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async (request: Request, h: ReplyWithContinue) => {
@@ -112,6 +141,16 @@ const routes: RouteConfiguration[] =  [
                 return h.response({message: 'Invalid password', data: null}).code(401);
             }
 
+            const newEmail = await uow.usersRepository.getUserByEmail(user.email);
+            if (newEmail !== undefined && newEmail.email !== user.email) {
+                return h.response({message: 'This email is already in use.', data: null}).code(409);
+            }
+
+            const newUsername = await uow.usersRepository.getUserByUsername(user.username);
+            if (newUsername !== undefined && newUsername.email !== user.email) {
+                return h.response({message: 'This username is already in use.', data: null}).code(409);
+            }
+
             if (newUser.newPassword !== undefined) {
                 await uow.usersRepository.changePassword(userId, newUser.newPassword);
             }
@@ -121,36 +160,42 @@ const routes: RouteConfiguration[] =  [
 
             const updatedUser = await uow.usersRepository.updateUser(userId, newUser);
 
-            return {status: 0, message: 'success', data: updatedUser};
+            return h.response({status: 0, message: 'success', data: updatedUser});
         }
-    }, {
-        method: 'PUT',
-        path: '/users/{id}/password',
-        config: {
-            description: 'Update user\'s password',
-            tags: ['api', 'users'],
-            notes: ['Updates the use\'r with the new value'],
-            cors: true,
-            validate: {
-                params: {
-                    id: Joi.string().guid().required()
-                },
-                payload: {
-                    user: {
-                        password: Joi.string().required()
-                    }
-                }   
-            }
-        },
-        handler: async (request: Request, h: ReplyWithContinue) => {
-            const uow: UnitOfWork = await request.app.getNewUoW();
+    }, 
+    // {
+    //     method: 'PUT',
+    //     path: '/users/{id}/password',
+    //     config: {
+    //         description: 'Update user\'s password',
+    //         tags: ['api', 'users'],
+    //         notes: ['Updates the use\'r with the new value'],
+    //         cors: true,
+    //         auth: 'jwt',
+    //         validate: {
+    //             params: {
+    //                 id: Joi.string().guid().required()
+    //             },
+    //             payload: {
+    //                 user: {
+    //                     password: Joi.string().required()
+    //                 }
+    //             },
+    //             headers: Joi.object({
+    //                 'authorization': Joi.string().required()
+    //            }).unknown()
+    //         }
+    //     },
+    //     handler: async (request: Request, h: ReplyWithContinue) => {
+    //         const uow: UnitOfWork = await request.app.getNewUoW();
 
-            const userId = request.params.id;
-            const password = request.payload.user.password;
-            const result = await uow.usersRepository.changePassword(userId, password);
-            return {status: 0, message: 'success', data: result};
-        }
-    }, {
+    //         const userId = request.params.id;
+    //         const password = request.payload.user.password;
+    //         const result = await uow.usersRepository.changePassword(userId, password);
+    //         return {status: 0, message: 'success', data: result};
+    //     }
+    // }, 
+    {
         method: 'DELETE',
         path: '/users/{id}',
         config: {
@@ -158,10 +203,14 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'users'],
             notes: ['Deletes user with the specified id'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     id: Joi.string().guid().required()
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async (request: Request, h: ReplyWithContinue) => {
@@ -169,7 +218,7 @@ const routes: RouteConfiguration[] =  [
 
             const userId = request.params.id;
             const result = await uow.usersRepository.deleteUserById(userId);
-            return {status: 0, message: 'success', data: result};
+            return h.response({status: 0, message: 'success', data: result});
         }
     }
 ];

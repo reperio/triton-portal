@@ -30,7 +30,9 @@ export class Papi {
         } catch (err) {
             this._logger.error('Failed to fetch packages from papi');
             this._logger.error(err);
-            throw err;
+
+            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+            throw new Error(errorObj.message);
         }
     }
 
@@ -50,6 +52,11 @@ export class Papi {
         } catch (err) {
             this._logger.error('Failed to fetch package from papi');
             this._logger.error(err);
+
+            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+            if (errorObj.code === "ResourceNotFound") {
+                throw new Error("The chosen package could not be found.");
+            }
             throw err;
         }
     }

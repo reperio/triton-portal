@@ -21,15 +21,29 @@ const start = async function() {
     // register swagger and its required plugins
     await server.registerAdditionalPlugin(require('inert'));
     await server.registerAdditionalPlugin(require('vision'));
+
+    const swaggerSecurityOptions: any = [{ 'jwt': [] }];
+
     const swaggerPluginPackage = {
         plugin: require('hapi-swagger'),
         options: {
+            host: 'localhost:3000',
             grouping: 'tags',
             sortEndpoints: 'method',
-            host: 'localhost:3000'
+            securityDefinitions: {
+                'jwt': {
+                    'type': 'apiKey',
+                    'name': 'Authorization',
+                    'in': 'header'
+                }
+            },
+            security: swaggerSecurityOptions
         }
     };
+
     await server.registerAdditionalPlugin(swaggerPluginPackage);
+
+    await server.startServer();
 
     // register api routes
     const apiPluginPackage = {
@@ -136,15 +150,11 @@ const start = async function() {
 
                     request.response.header('Access-Control-Expose-Headers', 'Authorization');
                     request.response.header("Authorization", `Bearer ${token}`);
-
-                    console.log('sending auth token');
                 }
     
                 return h.continue;
             }
         });
-
-    await server.startServer();
 } 
 
 start();

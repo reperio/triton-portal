@@ -63,15 +63,11 @@ export class UsersRepository {
 
         try {
             const q = User.query(this.uow._transaction)
-                .where('email', email);
+                .where('email', email)
+                .first();
 
-            const users = await q;
-            if (users.length > 1) {
-                throw new Error('Too many results');
-            }
-            else if (users.length == 1) {
-                return users[0];
-            }
+            const user = await q;
+            return user;
         } catch(err) {
             throw(err);
         }
@@ -82,15 +78,11 @@ export class UsersRepository {
 
         try {
             const q = User.query(this.uow._transaction)
-                .where('ownerUuid', ownerUuid);
+                .where('ownerUuid', ownerUuid)
+                .first();
 
-            const users = await q;
-            if (users.length > 1) {
-                throw new Error('Too many results');
-            }
-            else if (users.length == 1) {
-                return users[0];
-            }
+            const user = await q;
+            return user;
         } catch(err) {
             throw(err);
         }

@@ -1,5 +1,7 @@
 import * as request from 'request-promise-native';
 import {LoggerInstance} from 'winston';
+import ErrorModel from '../models/errorModel';
+import ReactTableOptionsModel from '../models/reactTableOptionsModel';
 
 /* 
     Documentation for vmapi: https://github.com/joyent/sdc-vmapi/blob/master/docs/index.md
@@ -36,6 +38,8 @@ export class Vmapi {
 
     async getVirtualMachinesByOwnerUuid(ownerId: string) {
         this._logger.info(`Fetching virtual machine from VmApi with owner_uuid: "${ownerId}"`);
+        const oldUrl = `${this._baseUrl}?query=(%26(owner_uuid=${ownerId})(%21(state=destroyed)))`;
+
         const options: request.OptionsWithUri = {
             uri: `${this._baseUrl}?query=(%26(owner_uuid=${ownerId})(%21(state=destroyed)))`,
             method: 'GET',
@@ -47,6 +51,26 @@ export class Vmapi {
         try {
             const virtualMachines = JSON.parse(await request(options));
             return virtualMachines;
+        } catch (err) {
+            this._logger.error('Failed to fetch virtual machines from VmApi with owner');
+            this._logger.error(err);
+            throw err;
+        }
+    }
+
+    async getVirtualMachinesByOwnerUuidCount(ownerId: string) {
+        this._logger.info(`Fetching virtual machine from VmApi with owner_uuid: "${ownerId}"`);
+        const options: request.OptionsWithUri = {
+            uri: `${this._baseUrl}?query=(%26(owner_uuid=${ownerId})(%21(state=destroyed)))`,
+            method: 'HEAD',
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        };
+
+        try {
+            const response = await request(options);
+            return response;
         } catch (err) {
             this._logger.error('Failed to fetch virtual machines from VmApi with owner');
             this._logger.error(err);
@@ -124,6 +148,16 @@ export class Vmapi {
 
             const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
 
+            if (errorObj.message === "Invalid VM parameters") {
+                errorObj.errors.map((error: ErrorModel) => {
+                    if (error.field === "alias" && error.message === "Already exists for this owner_uuid") {
+                        throw new Error('The virtual machine name already exists.');
+                    }
+                    else if (error.field === "alias" && error.message.includes("String does not match regexp")) {
+                        throw new Error('The virtual machine name must not contain spaces or symbols (other than "." and "-").');
+                    }
+                });
+            }
             throw new Error(errorObj.message);
         }
     }
@@ -178,11 +212,13 @@ export class Vmapi {
             const result = JSON.parse(await request(options));
             return result;
         } catch (err) {
-            this._logger.error('Failed to stop vm');
-            this._logger.error(err);
-
             const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
-            throw new Error(errorObj.message);
+            if (!err.message.includes("vmadm.stop error: vmadm exited with code: 1 signal: null")) {
+                //https://smartos.org/bugview/OS-5271
+                this._logger.error('Failed to stop vm');
+                this._logger.error(err);
+                throw new Error(errorObj.message);
+            }
         }
     }
 
@@ -264,6 +300,16 @@ export class Vmapi {
             this._logger.error(err);
            
             const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+            if (errorObj.message === "Invalid VM update parameters") {
+                errorObj.errors.map((error: ErrorModel) => {
+                    if (error.field === "alias" && error.message === "Already exists for this owner_uuid") {
+                        throw new Error('The virtual machine name already exists.');
+                    }
+                    else if (error.field === "alias" && error.message.includes("String does not match regexp")) {
+                        throw new Error('The virtual machine name must not contain spaces or symbols (other than "." and "-").');
+                    }
+                });
+            }
             throw new Error(errorObj.message);
         }
     }

@@ -12,6 +12,7 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'napi'],
             notes: ['Fetches and returns all fabric networks from Triton for specified owner uuid and vlan id'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     owner_uuid: Joi.string().guid().required()
@@ -20,7 +21,10 @@ const routes: RouteConfiguration[] =  [
                     vlan_ids: Joi.array().items(
                         Joi.number()
                     ).required()
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
@@ -39,7 +43,7 @@ const routes: RouteConfiguration[] =  [
                 })
             ));
 
-            return {status: 0, message: 'success', data: networks};
+            return h.response({status: 0, message: 'success', data: networks});
         }
     },{
         method: 'GET',
@@ -49,10 +53,14 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'napi'],
             notes: ['Fetches and returns all fabric vlans from Triton for specified owner uuid'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     owner_uuid: Joi.string().guid().required()
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
@@ -70,7 +78,7 @@ const routes: RouteConfiguration[] =  [
                 }
             });
 
-            return {status: 0, message: 'success', data: networks};
+            return h.response({status: 0, message: 'success', data: networks});
         }
     },{
         method: 'POST',
@@ -80,6 +88,7 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'napi'],
             notes: ['Creates a fabric network'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     owner_uuid: Joi.string().guid().required(),
@@ -95,7 +104,10 @@ const routes: RouteConfiguration[] =  [
                         resolvers: Joi.array().items(Joi.string()).optional(),
                         description: Joi.string().optional()
                     }
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
@@ -109,7 +121,7 @@ const routes: RouteConfiguration[] =  [
             const vlan_id = parseInt(request.params.vlan_id);
 
             const networks = await napi.createFabricNetwork(request.payload.fabricNetwork, vlan_id, owner_uuid);
-            return {status: 0, message: 'success', data: networks};
+            return h.response({status: 0, message: 'success', data: networks});
         }
     },{
         method: 'POST',
@@ -119,6 +131,7 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'napi'],
             notes: ['Creates a fabric vlan'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     owner_uuid: Joi.string().guid().required()
@@ -128,7 +141,10 @@ const routes: RouteConfiguration[] =  [
                         name: Joi.string().required(),
                         description: Joi.string().optional()
                     }
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
@@ -145,7 +161,7 @@ const routes: RouteConfiguration[] =  [
             await uow.vlanIdsRepository.createVlanId(owner_uuid, newVlanId);
             
             const fabricVLan = await napi.createFabricVlan(request.payload.fabricVLan.name, newVlanId, owner_uuid);
-            return {status: 0, message: 'success', data: fabricVLan};
+            return h.response({status: 0, message: 'success', data: fabricVLan});
         }
     },{
         method: 'DELETE',
@@ -155,11 +171,15 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'napi'],
             notes: ['Deletes a fabric vlan'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     owner_uuid: Joi.string().guid().required(),
                     vlan_id: Joi.number().required()
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
@@ -172,7 +192,7 @@ const routes: RouteConfiguration[] =  [
 
             const result = await napi.deleteFabricVlan(owner_uuid, vlan_id);
             
-            return {status: 0, message: 'success', data: result};
+            return h.response({status: 0, message: 'success', data: result});
         }
     },{
         method: 'DELETE',
@@ -182,12 +202,16 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'napi'],
             notes: ['Deletes a fabric network'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     owner_uuid: Joi.string().guid().required(),
                     vlan_id: Joi.number().required(),
                     network_uuid: Joi.string().guid().required()
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {

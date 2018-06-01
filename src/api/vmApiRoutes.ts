@@ -6,6 +6,7 @@ import {Vmapi} from '../triton/vmapi';
 import { UnitOfWork } from '../db';
 
 import nic from '../models/nicModel';
+import ErrorModel from '../models/errorModel';
 
 const routes: RouteConfiguration[] =  [
     {
@@ -15,13 +16,19 @@ const routes: RouteConfiguration[] =  [
             description: 'Get all virtual machines from VmApi',
             tags: ['api', 'vmapi'],
             notes: ['Fetches and returns all virtual machines from Triton'],
-            cors: true
+            cors: true,
+            auth: 'jwt',
+            validate: {
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
+            }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
             const vmapi: Vmapi = await request.app.getNewVmApi();
 
             const virtualMachines = await vmapi.getAllVirtualMachines();
-            return {status: 0, message: 'success', data: virtualMachines};
+            return h.response({message: 'success', data: virtualMachines}).code(200);
         }
     }, {
         method: 'GET',
@@ -31,18 +38,26 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'vmapi'],
             notes: ['Fetches and returns a virtual machine from Triton'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     uuid: Joi.string().guid().required()
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
             const vmapi: Vmapi = await request.app.getNewVmApi();
 
             const virtualMachineUuid = request.params.uuid;
-            const virtualMachine = await vmapi.getVirtualMachineByUuid(virtualMachineUuid);
-            return {status: 0, message: 'success', data: virtualMachine};
+            try {
+                const virtualMachine = await vmapi.getVirtualMachineByUuid(virtualMachineUuid);
+                return h.response({message: 'success', data: virtualMachine}).code(200);
+            } catch (err) {
+                return h.response({message: 'The virtual machine could not be found'}).code(404);
+            }
         }
     }, {
         method: 'GET',
@@ -52,18 +67,26 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'vmapi'],
             notes: ['Fetches and returns virtual machines by owner_uuid from Triton'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     owner_uuid: Joi.string().guid().required()
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
             const vmapi: Vmapi = await request.app.getNewVmApi();
-
             const ownerUuid = request.params.owner_uuid;
-            const virtualMachines = await vmapi.getVirtualMachinesByOwnerUuid(ownerUuid);
-            return {status: 0, message: 'success', data: virtualMachines};
+
+            try {
+                const virtualMachines = await vmapi.getVirtualMachinesByOwnerUuid(ownerUuid);
+                return h.response({message: 'success', data: virtualMachines}).code(200);
+            } catch (err) {
+                return h.response({message: 'There was a problem getting your virtual machines.'}).code(400);
+            }
         }
     }, {
         method: 'POST',
@@ -73,6 +96,7 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'vmapi'],
             notes: ['Creates a new virtual machine in Triton SDC'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 payload: {
                     virtualMachine: {
@@ -88,7 +112,10 @@ const routes: RouteConfiguration[] =  [
                         image_uuid: Joi.string().guid().required(),
                         quota:  Joi.number().required()
                     }
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
@@ -108,11 +135,11 @@ const routes: RouteConfiguration[] =  [
             try {
                 const result = await vmapi.createVirtualMachine(virtualMachine);
                 return h.response({message: 'Success', data: result}).code(200);
-
             } catch (err) {
-                if (err.message === "Invalid VM parameters") {
-                    return h.response({message: err.message, data: null}).code(400);
+                if (err.message === 'The virtual machine name already exists.') {
+                    return h.response({message: err.message}).code(409);
                 }
+                return h.response({message: err.message}).code(400);
             }
         }
     }, {
@@ -123,13 +150,17 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'vmapi'],
             notes: ['Starts a virtual machine with the provided id'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     id: Joi.string().guid().required()
                 },
                 query: {
                     owner_id: Joi.string().guid().required()
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
@@ -140,10 +171,10 @@ const routes: RouteConfiguration[] =  [
 
             try {
                 const result = await vmapi.startVirtualMachine(owner_id, vmId);
-                return h.response({message: 'Success', data: true}).code(200);
+                return h.response({message: 'Success', data: result}).code(200);
             } catch (err) {
                 if (err.message === "Cannot start a VM from a 'running' state") {
-                    return h.response({message: "Cannot start a VM that's already running", data: null}).code(400);
+                    return h.response({message: "Cannot start a VM that's already running"}).code(400);
                 }
             }
         }
@@ -155,13 +186,17 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'vmapi'],
             notes: ['Stops a virtual machine with the provided id'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     id: Joi.string().guid().required()
                 },
                 query: {
                     owner_id: Joi.string().guid().required()
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
@@ -172,11 +207,9 @@ const routes: RouteConfiguration[] =  [
 
             try {
                 const result = await vmapi.stopVirtualMachine(owner_id, vmId);
-                return h.response({message: 'Success', data: true}).code(200);
+                return h.response({message: 'Success', data: result}).code(200);
             } catch (err) {
-                //if (err.message === "Cannot start a VM from a 'running' state") {
-                    return h.response({message: err.message, data: null}).code(400);
-                //}
+                return h.response({message: err.message}).code(400);
             }
         }
     }, {
@@ -187,24 +220,26 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'vmapi'],
             notes: ['Reboots a virtual machine with the provided id'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     id: Joi.string().guid().required()
                 },
                 query: {
                     owner_id: Joi.string().guid().required()
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
             const vmapi: Vmapi = await request.app.getNewVmApi();
-
             const owner_id = request.query.owner_id;
             const vmId = request.params.id;
 
-
             const result = await vmapi.rebootVirtualMachine(owner_id, vmId);
-            return {status: 0, message: 'success', data: result};
+            return h.response({status: 0, message: 'success', data: result}).code(200);
         }
     }, {
         method: 'DELETE',
@@ -214,13 +249,17 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'vmapi'],
             notes: ['Deletes a virtual machine with the provided id'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     id: Joi.string().guid().required()
                 },
                 query: {
                     owner_id: Joi.string().guid().required()
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
@@ -229,8 +268,12 @@ const routes: RouteConfiguration[] =  [
             const owner_id = request.query.owner_id;
             const vmId = request.params.id;
 
-            const result = await vmapi.deleteVirtualMachine(owner_id, vmId);
-            return {status: 0, message: 'success', data: result};
+            try {
+                const result = await vmapi.deleteVirtualMachine(owner_id, vmId);
+                return h.response({message: 'Success', data: true}).code(200);
+            } catch (err) {
+                return h.response({message: err.message}).code(400);
+            }
         }
     }, {
         method: 'PUT',
@@ -240,6 +283,7 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'vmapi'],
             notes: ['Reprovision a virtual machine'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     id: Joi.string().guid().required()
@@ -248,7 +292,10 @@ const routes: RouteConfiguration[] =  [
                     virtualMachine: {
                         image_uuid: Joi.string().guid().required()
                     }
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
@@ -260,10 +307,10 @@ const routes: RouteConfiguration[] =  [
 
             try {
                 const result = await vmapi.reprovisionVirtualMachine(virtualMachineUuid, image_uuid);
+                return h.response({message: 'Success', data: result}).code(200);
             } catch (err) {
-                return h.response({message: err.message, data: null}).code(400);
+                return h.response({message: err.message}).code(400);
             }
-            return h.response({message: 'Success', data: true}).code(200);
         }
     }, {
         method: 'PUT',
@@ -273,6 +320,7 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'vmapi'],
             notes: ['Update a virtual machine'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     id: Joi.string().guid().required()
@@ -281,7 +329,10 @@ const routes: RouteConfiguration[] =  [
                     virtualMachine: {
                         alias: Joi.string().required()
                     }
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
@@ -293,10 +344,10 @@ const routes: RouteConfiguration[] =  [
 
             try {
                 const result = await vmapi.renameVirtualMachine(virtualMachineUuid, alias);
+                return h.response({message: 'Success', data: result}).code(200);
             } catch (err) {
-                return h.response({message: err.message, data: null}).code(400);
+                return h.response({message: err.message}).code(400);
             }
-            return h.response({message: 'Success', data: true}).code(200);
         }
     }, {
         method: 'PUT',
@@ -306,6 +357,7 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'vmapi'],
             notes: ['Update a virtual machine'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     id: Joi.string().guid().required()
@@ -314,7 +366,10 @@ const routes: RouteConfiguration[] =  [
                     virtualMachine: {
                         billing_id: Joi.string().guid().required()
                     }
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
@@ -326,10 +381,10 @@ const routes: RouteConfiguration[] =  [
 
             try {
                 const result = await vmapi.resizeVirtualMachine(virtualMachineUuid, billing_id);
+                return h.response({message: 'Success', data: result}).code(200);
             } catch (err) {
-                return h.response({message: err.message, data: null}).code(400);
+                return h.response({message: err.message}).code(400);
             }
-            return h.response({message: 'Success', data: true}).code(200);
         }
     }, {
         method: 'POST',
@@ -339,6 +394,7 @@ const routes: RouteConfiguration[] =  [
             tags: ['api', 'vmapi'],
             notes: ['Update a vms NICs'],
             cors: true,
+            auth: 'jwt',
             validate: {
                 params: {
                     id: Joi.string().guid().required()
@@ -352,7 +408,10 @@ const routes: RouteConfiguration[] =  [
                         })
                         .optional()
                     )
-                }
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
             }
         },
         handler: async(request: Request, h: ReplyWithContinue) => {
@@ -363,8 +422,6 @@ const routes: RouteConfiguration[] =  [
             const uow: UnitOfWork = await request.app.getNewUoW();
 
             const currentNics = (await vmapi.getVirtualMachineByUuid(virtualMachineUuid)).nics;
-
-            uow._logger.warn(JSON.stringify(currentNics));
 
             let toAdd:any = [];
             let toDelete:string[] = [];
@@ -410,7 +467,7 @@ const routes: RouteConfiguration[] =  [
                     await vmapi.updateNics(virtualMachineUuid, toUpdate);
                 }
             } catch (err) {
-                return h.response({message: err.message, data: null}).code(400);
+                return h.response({message: err.message}).code(400);
             }
 
             return h.response({message: 'Success', data: true}).code(200);
