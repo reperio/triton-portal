@@ -316,9 +316,9 @@ const routes: RouteConfiguration[] =  [
         method: 'PUT',
         path: '/triton/vms/{id}/rename',
         config: {
-            description: 'Update a virtual machine',
+            description: 'Rename a virtual machine',
             tags: ['api', 'vmapi'],
-            notes: ['Update a virtual machine'],
+            notes: ['Rename a virtual machine'],
             cors: true,
             auth: 'jwt',
             validate: {
@@ -353,9 +353,9 @@ const routes: RouteConfiguration[] =  [
         method: 'PUT',
         path: '/triton/vms/{id}/resize',
         config: {
-            description: 'Update a virtual machine',
+            description: 'Resize a virtual machine',
             tags: ['api', 'vmapi'],
-            notes: ['Update a virtual machine'],
+            notes: ['Resize a virtual machine'],
             cors: true,
             auth: 'jwt',
             validate: {

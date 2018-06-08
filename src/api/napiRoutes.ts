@@ -226,7 +226,7 @@ const routes: RouteConfiguration[] =  [
 
             } catch (err) {
                 if (err.message === "network must have no NICs provisioned") {
-                    return h.response({message: 'This network is being used and cannot be deleted.', data: null}).code(400);
+                    return h.response({message: 'This network is being used and cannot be deleted.', data: null}).code(422);
                 }
             }
         }

@@ -28,7 +28,7 @@ const routes: RouteConfiguration[] =  [
             const user = await uow.usersRepository.getUserByEmail(request.payload.email);
 
             if (user === null || !await bcrypt.compareSync(request.payload.password, user.password)) {
-                return h.response('unauthorized').code(401);
+                return h.response({message: 'Invalid username or password'}).code(401);
             }
 
             const tokenPayload = {

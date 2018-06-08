@@ -35,6 +35,7 @@ export class UsersRepository {
                 return users[0];
             }
         } catch(err) {
+            this.uow._logger.error(err);
             throw(err);
         }
     }
@@ -54,6 +55,7 @@ export class UsersRepository {
                 return users[0];
             }
         } catch(err) {
+            this.uow._logger.error(err);
             throw(err);
         }
     }
@@ -69,6 +71,7 @@ export class UsersRepository {
             const user = await q;
             return user;
         } catch(err) {
+            this.uow._logger.error(err);
             throw(err);
         }
     }
@@ -84,6 +87,7 @@ export class UsersRepository {
             const user = await q;
             return user;
         } catch(err) {
+            this.uow._logger.error(err);
             throw(err);
         }
     }
