@@ -8,6 +8,7 @@ import {Vmapi} from './triton/vmApi';
 import {Papi} from './triton/papi';
 import {Napi} from './triton/napi';
 import {Imgapi} from './triton/imgapi';
+import { Fwapi } from './triton/fwapi';
 const jwt = require("jsonwebtoken");
 
 const validateFunc = async function (decoded: any, request: Request) {
@@ -65,6 +66,19 @@ const start = async function() {
                     const uow = new UnitOfWork(server.app.logger);
                     request.app.uows.push(uow);
                     return uow;
+                };
+
+                return h.continue;
+            }
+    });
+
+    // add method to get FwApi handler off of the request
+    await server.registerExtension({
+        type: 'onRequest',
+            method: async (request: Request, h: ReplyWithContinue) => {
+                request.app.getNewFwApi = async () => {
+                    const fwApi = new Fwapi(config.default.tritonRoutes.fwapi, server.app.logger);
+                    return fwApi;
                 };
 
                 return h.continue;

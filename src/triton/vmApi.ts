@@ -149,7 +149,7 @@ export class Vmapi {
             const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
 
             if (errorObj.message === "Invalid VM parameters") {
-                errorObj.errors.map((error: ErrorModel) => {
+                errorObj.errors.forEach((error: ErrorModel) => {
                     if (error.field === "alias" && error.message === "Already exists for this owner_uuid") {
                         throw new Error('The virtual machine name already exists.');
                     }
@@ -277,6 +277,33 @@ export class Vmapi {
         }
     }
 
+    async updateVirtualMachineTags(uuid: string, tags:any) {
+        this._logger.info(`Updating virtual machine tags for uuid: ${uuid}`);
+        const options: request.OptionsWithUri = {
+            uri: `${this._baseUrl}/${uuid}?action=update&sync=true`,
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({tags})
+        };
+
+        try {
+            const result = JSON.parse(await request(options));
+            return result;
+        } catch (err) {
+            this._logger.error('Failed to update virtual machine tags');
+            this._logger.error(err);
+
+            if (err.message.includes('StatusCodeError')) {
+                const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+                throw new Error(errorObj.message);
+            }
+
+            throw new Error('Connection timed out');
+        }
+    }
+
     async renameVirtualMachine(vmId: string, alias: string) {
         const payload = {
             alias
@@ -298,19 +325,23 @@ export class Vmapi {
         } catch (err) {
             this._logger.error('Failed to edit vm');
             this._logger.error(err);
-           
-            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
-            if (errorObj.message === "Invalid VM update parameters") {
-                errorObj.errors.map((error: ErrorModel) => {
-                    if (error.field === "alias" && error.message === "Already exists for this owner_uuid") {
-                        throw new Error('The virtual machine name already exists.');
-                    }
-                    else if (error.field === "alias" && error.message.includes("String does not match regexp")) {
-                        throw new Error('The virtual machine name must not contain spaces or symbols (other than "." and "-").');
-                    }
-                });
+
+            if (err.message.includes('StatusCodeError')) {
+                const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+                if (errorObj.message === "Invalid VM update parameters") {
+                    errorObj.errors.map((error: ErrorModel) => {
+                        if (error.field === "alias" && error.message === "Already exists for this owner_uuid") {
+                            throw new Error('The virtual machine name already exists.');
+                        }
+                        else if (error.field === "alias" && error.message.includes("String does not match regexp")) {
+                            throw new Error('The virtual machine name must not contain spaces or symbols (other than "." and "-").');
+                        }
+                    });
+                }
+                throw new Error(errorObj.message);
             }
-            throw new Error(errorObj.message);
+
+            throw new Error('Connection timed out');
         }
     }
 
@@ -336,8 +367,12 @@ export class Vmapi {
             this._logger.error('Failed to edit vm');
             this._logger.error(err);
 
-            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
-            throw new Error(errorObj.message);
+            if (err.message.includes('StatusCodeError')) {
+                const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+                throw new Error(errorObj.message);
+            }
+
+            throw new Error('Connection timed out');
         }
     }
 
@@ -363,8 +398,12 @@ export class Vmapi {
             this._logger.error('Failed to edit vm');
             this._logger.error(err);
             
-            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
-            throw new Error(errorObj.message);
+            if (err.message.includes('StatusCodeError')) {
+                const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+                throw new Error(errorObj.message);
+            }
+
+            throw new Error('Connection timed out');
         } 
     }
 
@@ -375,7 +414,7 @@ export class Vmapi {
 
         this._logger.info(`Adding NICs to virtual machine: ${vmId}`);
         const options: request.OptionsWithUri = {
-            uri: `${this._baseUrl}/${vmId}?action=add_nics&sync=true`,
+            uri: `${this._baseUrl}/${vmId}?action=add_nics`,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -390,8 +429,12 @@ export class Vmapi {
             this._logger.error('Failed to add NICs');
             this._logger.error(err);
 
-            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
-            throw new Error(errorObj.message);
+            if (err.message.includes('StatusCodeError')) {
+                const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+                throw new Error(errorObj.message);
+            }
+
+            throw new Error('Connection timed out');
         } 
     }
 
@@ -402,7 +445,7 @@ export class Vmapi {
 
         this._logger.info(`Removing NICs`);
         const options: request.OptionsWithUri = {
-            uri: `${this._baseUrl}/${vmId}?action=remove_nics&sync=true`,
+            uri: `${this._baseUrl}/${vmId}?action=remove_nics`,
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -417,8 +460,12 @@ export class Vmapi {
             this._logger.error('Failed to remove NICs');
             this._logger.error(err);
 
-            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
-            throw new Error(errorObj.message);
+            if (err.message.includes('StatusCodeError')) {
+                const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+                throw new Error(errorObj.message);
+            }
+
+            throw new Error('Connection timed out');
         } 
     }
 
@@ -443,9 +490,13 @@ export class Vmapi {
         } catch (err) {
             this._logger.error('Failed to update NICs');
             this._logger.error(err);
-            
-            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
-            throw new Error(errorObj.message);
+
+            if (err.message.includes('StatusCodeError')) {
+                const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+                throw new Error(errorObj.message);
+            }
+
+            throw new Error('Connection timed out');
         } 
     }
 }

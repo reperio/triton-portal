@@ -30,7 +30,13 @@ export class Napi {
         } catch (err) {
             this._logger.error('Failed to fetch networks from napi');
             this._logger.error(err);
-            throw err;
+
+            if (err.message.includes('StatusCodeError')) {
+                const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+                throw new Error(errorObj.message);
+            }
+            
+            throw new Error('Connection timed out');
         }
     }
 
@@ -50,7 +56,13 @@ export class Napi {
         } catch (err) {
             this._logger.error('Failed to fetch vlans from napi');
             this._logger.error(err);
-            throw err;
+
+            if (err.message.includes('StatusCodeError')) {
+                const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+                throw new Error(errorObj.message);
+            }
+
+            throw new Error('Connection timed out');
         }
     }
 
@@ -77,7 +89,13 @@ export class Napi {
         } catch (err) {
             this._logger.error('Failed to create fabric vlan');
             this._logger.error(err);
-            throw err;
+
+            if (err.message.includes('StatusCodeError')) {
+                const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+                throw new Error(errorObj.message);
+            }
+
+            throw new Error('Connection timed out');
         }
     }
 
@@ -103,7 +121,13 @@ export class Napi {
         } catch (err) {
             this._logger.error('Failed to delete fabric vlan');
             this._logger.error(err);
-            throw err;
+
+            if (err.message.includes('StatusCodeError')) {
+                const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+                throw new Error(errorObj.message);
+            }
+            
+            throw new Error('Connection timed out');
         }
     }
 
@@ -124,7 +148,13 @@ export class Napi {
         } catch (err) {
             this._logger.error('Failed to create fabric network');
             this._logger.error(err);
-            throw err;
+
+            if (err.message.includes('StatusCodeError')) {
+                const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+                throw new Error(errorObj.message);
+            }
+            
+            throw new Error('Connection timed out');
         }
     }
 
@@ -150,9 +180,12 @@ export class Napi {
             this._logger.error('Failed to delete fabric network');
             this._logger.error(err.message);
 
-            const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
-            
-            throw new Error(errorObj.message);
+            if (err.message.includes('StatusCodeError')) {
+                const errorObj = JSON.parse(JSON.parse(err.message.substr(err.message.indexOf("-") + 1).trim()));
+                throw new Error(errorObj.message);
+            }
+
+            throw new Error('Connection timed out');
         }
     }
 }

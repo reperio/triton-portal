@@ -46,15 +46,16 @@ export class SshKeyRepository {
 
     async createSshKeys(userId: string, sshKeys: any[]) {
         this.uow._logger.info(`Updating ssh keys for user: ${userId}`);
-        let sshKeysModel:any[] = [];
-        sshKeys.map(sshKey => {
-            const sshKeyModel = SshKey.fromJson({
-                key: sshKey.key,
-                userId: userId,
-                description: sshKey.description
+        const sshKeysModel =
+            sshKeys.map(sshKey => {
+                const sshKeyModel = SshKey.fromJson({
+                    key: sshKey.key,
+                    userId: userId,
+                    description: sshKey.description
+                });
+
+               return sshKeyModel;
             });
-            sshKeysModel.push(sshKeyModel);
-        });
 
         try {
             const q = SshKey.query(this.uow._transaction)

@@ -7,6 +7,7 @@ import { UnitOfWork } from '../db';
 
 import nic from '../models/nicModel';
 import ErrorModel from '../models/errorModel';
+import { ENETUNREACH } from 'constants';
 
 const routes: RouteConfiguration[] =  [
     {
@@ -139,6 +140,90 @@ const routes: RouteConfiguration[] =  [
                 if (err.message === 'The virtual machine name already exists.') {
                     return h.response({message: err.message}).code(409);
                 }
+                return h.response({message: err.message}).code(400);
+            }
+        }
+    },{
+        method: 'POST',
+        path: '/triton/vms/{id}/updateTags',
+        config: {
+            description: 'Update tags on a virtual machine',
+            tags: ['api', 'vmapi'],
+            notes: ['Updates tags on a virtual machine'],
+            cors: true,
+            auth: 'jwt',
+            validate: {
+                params: {
+                    id: Joi.string().guid().required()
+                },
+                payload: {
+                    tags: Joi.array().items(
+                        Joi.object({
+                            name: Joi.string().required(),
+                            value: Joi.string().required()
+                    })
+                )},
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
+            }
+        },
+        handler: async(request: Request, h: ReplyWithContinue) => {
+            const vmapi: Vmapi = await request.app.getNewVmApi();
+            const vmId = request.params.id;
+
+            var tags:any = {};
+            request.payload.tags.forEach((tag:any) => {
+                tags[`${tag.name}`] = `${tag.value}`;
+            });
+
+            try {
+                const result = await vmapi.updateVirtualMachineTags(vmId, tags);
+                return result;
+            } catch (err) {
+                return h.response({message: err.message}).code(400);
+            }
+        }
+    },{
+        method: 'POST',
+        path: '/triton/vms/addTag',
+        config: {
+            description: 'Add tag to virtual machines',
+            tags: ['api', 'vmapi'],
+            notes: ['Adds a tag to several virtual machines'],
+            cors: true,
+            auth: 'jwt',
+            validate: {
+                payload: {
+                    tag: Joi.object().keys({
+                        uuids: Joi.array().items(
+                            Joi.string().guid()
+                        ).required().min(1),
+                        name: Joi.string().required(),
+                        value: Joi.string().required()
+                    }).required()
+                },
+                headers: Joi.object({
+                    'authorization': Joi.string().required()
+               }).unknown()
+            }
+        },
+        handler: async(request: Request, h: ReplyWithContinue) => {
+            const vmapi: Vmapi = await request.app.getNewVmApi();
+            const uuids = request.payload.tag.uuids;
+            const name = request.payload.tag.name;
+            const value = request.payload.tag.value;
+
+            try {
+                await Promise.all(
+                    uuids.map(async (uuid: string) => {
+                        const tags = (await vmapi.getVirtualMachineByUuid(uuid)).tags;
+                        tags[`${name}`] = `${value}`;
+                        return await vmapi.updateVirtualMachineTags(uuid, tags);
+                    })
+                );
+                return true;
+            } catch (err) {
                 return h.response({message: err.message}).code(400);
             }
         }
@@ -425,23 +510,23 @@ const routes: RouteConfiguration[] =  [
 
             let toAdd:any = [];
             let toDelete:string[] = [];
-            let toUpdate:any = [];     
+            let toUpdate:any = [];
             
-            nics.map((newNic: any) => {
-                if (newNic.mac === "") {
-                    //add
-                    toAdd.push({uuid: newNic.uuid, primary: newNic.primary});
+            toAdd = nics.filter((newNic: any) => newNic.mac === "").map((newNic: any) => {
+                return {
+                    uuid: newNic.uuid,
+                    primary: newNic.primary
                 }
              });
 
             const newNicMacs = nics.map((nic:any) => nic.mac);
-            currentNics.map((currentNic: any) => {
+            currentNics.forEach((currentNic: any) => {
                 if (!newNicMacs.includes(currentNic.mac)) {
                     //delete
                     toDelete.push(currentNic.mac);
                 }
                 else {
-                    const similarNic = nics.filter((nic:any) => nic.mac === currentNic.mac)[0];
+                    const similarNic = nics.find((nic:any) => nic.mac === currentNic.mac);
                     if (similarNic.uuid !== currentNic.network_uuid) {
                         //update through deletion and addition
                         toDelete.push(currentNic.mac);

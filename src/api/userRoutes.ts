@@ -23,7 +23,7 @@ const routes: RouteConfiguration[] =  [
             const uow: UnitOfWork = await request.app.getNewUoW();
 
             const users = await uow.usersRepository.getAllUsers();
-            return {status: 0, message: 'success', data: users};
+            return users;
         }
     }, {
         method: 'GET',
@@ -49,7 +49,7 @@ const routes: RouteConfiguration[] =  [
             const userId = request.params.id;
             let user = await uow.usersRepository.getUserById(userId)
             user.password = null;
-            return {status: 0, message: 'success', data: user};
+            return user;
         }
     }, {
         method: 'POST',
@@ -93,7 +93,7 @@ const routes: RouteConfiguration[] =  [
             }
             
             const result = await uow.usersRepository.createUser(user);
-            return h.response({status: 0, message: 'success', data: result});
+            return result;
         }
     }, {
         method: 'PUT',
@@ -160,7 +160,7 @@ const routes: RouteConfiguration[] =  [
 
             const updatedUser = await uow.usersRepository.updateUser(userId, newUser);
 
-            return h.response({status: 0, message: 'success', data: updatedUser});
+            return updatedUser;
         }
     }, 
     // {
@@ -218,7 +218,7 @@ const routes: RouteConfiguration[] =  [
 
             const userId = request.params.id;
             const result = await uow.usersRepository.deleteUserById(userId);
-            return h.response({status: 0, message: 'success', data: result});
+            return result;
         }
     }
 ];
