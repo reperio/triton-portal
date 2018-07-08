@@ -21,6 +21,7 @@
   "homepage": "https://github.com/reperio/triton-portal#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "coveralls": "^3.0.2",
     "hapi-swagger": "^9.0.2",
     "hapijs-starter": "^2.0.0",
     "inert": "^5.1.0",
