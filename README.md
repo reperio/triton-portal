@@ -1,3 +1,4 @@
+[![Coverage Status](https://coveralls.io/repos/github/reperio/triton-portal-api/badge.svg?branch=master)](https://coveralls.io/github/reperio/triton-portal-api?branch=master) [![Build Status](https://travis-ci.org/reperio/triton-portal-api.svg?branch=master)](https://travis-ci.org/reperio/triton-portal-api)
 # triton-portal
 
 ## Project Setup
